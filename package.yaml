@@ -55,7 +55,9 @@ library:
   source-dirs: src
   exposed-modules:
     - FPPL
+    - FPPL.MaMa.Code
     - FPPL.MaMa.Heap
+    - FPPL.MaMa.Instr
     - FPPL.MaMa.SimpleTypes
     - FPPL.MaMa.Value
     - FPPL.Prelude

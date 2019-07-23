@@ -7,6 +7,25 @@ import FPPL.Prelude
 
 -- --------------------
 --
+-- address arithmetic
+
+class AddrArithm a where
+  incr' :: a -> Offset -> a
+  disp' :: a -> a -> Offset
+
+-- --------------------
+--
+-- offsets within stacks and vectors
+-- maybe negative
+
+type Offset = Int
+
+instance AddrArithm Offset where
+  incr' = (+)
+  disp' = (-)
+
+-- --------------------
+--
 -- addresses of heap objects
 
 newtype Addr = Addr Word
@@ -17,12 +36,6 @@ instance Empty Addr where
 
 -- --------------------
 --
--- offsets within stacks and vectors
-
-type Offset = Int
-
--- --------------------
---
 -- code positions
 
 newtype CodeAddr = CA Word
@@ -30,5 +43,12 @@ newtype CodeAddr = CA Word
 
 instance Empty CodeAddr where
   empty' = CA maxBound
+
+instance AddrArithm CodeAddr where
+  incr' (CA x) o      = CA . toEnum $ fromEnum x + o
+  disp' (CA x) (CA y) = fromEnum x - fromEnum y
+
+codeAddr2Offset :: Iso' CodeAddr Offset
+codeAddr2Offset = iso (\ (CA w) -> fromEnum w) (CA . toEnum)
 
 -- ----------------------------------------
