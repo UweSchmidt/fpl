@@ -1,0 +1,157 @@
+name:                fppl
+version:             0.1.0.0
+github:              UweSchmidt/fppl
+license:             BSD3
+author:              Uwe Schmidt
+maintainer:          uwe@fh-wedel.de
+copyright:           Uwe Schmidt
+
+extra-source-files:
+- README.md
+- ChangeLog.md
+
+# Metadata used when publishing your package
+# synopsis:            Short description of your package
+# category:            Web
+
+# To avoid duplicated efforts in documentation and dealing with the
+# complications of embedding Haddock markup inside cabal files, it is
+# common to point users to the README.md file.
+
+description:         Please see the README on Github at <https://github.com/UweSchmidt/fppl#readme>
+
+dependencies:
+- base >= 4.11 && < 10
+- aeson                >= 0.8
+- aeson-pretty         >= 0.8
+- bytestring           >= 0.9
+- containers           >= 0.4
+- directory            >= 1.1
+- filepath             >= 1
+- lens                 >= 4.12
+- mtl                  >= 2.2
+- megaparsec
+- text                 >= 1.0
+- time                 >= 1.5
+- transformers         >= 0.4
+- unix                 >= 2.5
+- unordered-containers >= 0.2
+- utf8-string          >= 1
+- vector               >= 0.10
+
+
+ghc-options:
+- -Wall
+- -Wcompat
+- -Widentities
+- -Wincomplete-record-updates
+- -Wincomplete-uni-patterns
+- -Wpartial-fields
+- -Wredundant-constraints
+- -fwarn-tabs
+- -funbox-strict-fields
+
+library:
+  source-dirs: src
+  exposed-modules:
+    - FPPL
+    - FPPL.MaMa.Heap
+    - FPPL.MaMa.SimpleTypes
+    - FPPL.MaMa.Value
+    - FPPL.Prelude
+
+  default-extensions:
+    - AutoDeriveTypeable
+    - BangPatterns
+    # - BinaryLiterals
+    # - ConstraintKinds
+    # - DataKinds
+    # - DefaultSignatures
+    - DeriveDataTypeable
+    # - DeriveFoldable
+    # - DeriveFunctor
+    # - DeriveGeneric
+    # - DeriveTraversable
+    # - DoAndIfThenElse
+    # - EmptyDataDecls
+    # - ExistentialQuantification
+    # - FlexibleContexts
+    # - FlexibleInstances
+    - FunctionalDependencies
+    # - GADTs
+    - GeneralizedNewtypeDeriving
+    - InstanceSigs
+    # - KindSignatures
+    - LambdaCase
+    # - MonadFailDesugaring
+    - MultiParamTypeClasses
+    # - MultiWayIf
+    # - NamedFieldPuns
+    # - NoImplicitPrelude
+    - OverloadedStrings
+    # - PartialTypeSignatures
+    - PatternGuards
+    # - PolyKinds
+    - RankNTypes
+    # - RecordWildCards
+    # - ScopedTypeVariables
+    - StandaloneDeriving
+    - TupleSections
+    # - TypeFamilies
+    - TypeSynonymInstances
+    - ViewPatterns
+
+executables:
+  fpplc:
+    main:                Main.hs
+    source-dirs:         app
+
+    dependencies:
+    - fppl
+    - optparse-applicative
+
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+
+  fp0:
+    main:                Main.hs
+    source-dirs:         fp0
+    other-modules:
+    - FP0.Value
+
+    dependencies:
+    - fppl
+
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+
+  fp1:
+    main:                Main.hs
+    source-dirs:         fp1
+    other-modules:
+    - FP1.Value
+
+    dependencies:
+    - fppl
+
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+
+tests:
+  fppl-test:
+    main:                Spec.hs
+    source-dirs:         test
+    dependencies:
+    - fppl
+    - hspec
+
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
