@@ -58,7 +58,9 @@ library:
     - FPPL.MaMa.Code
     - FPPL.MaMa.Heap
     - FPPL.MaMa.Instr
+    - FPPL.MaMa.MachineState
     - FPPL.MaMa.SimpleTypes
+    - FPPL.MaMa.Stack
     - FPPL.MaMa.Value
     - FPPL.Prelude
 

@@ -4,6 +4,20 @@
 -- machine types for virtual MaMa machine
 
 module FPPL.MaMa.Value
+  ( Value
+  , Closure
+  , Function
+  , Vec
+  , BasicValue(..)
+  , CodePointer(..)
+  , GlobalPointer(..)
+  , ArgsPointer(..)
+  , mkVec
+  , asB
+  , asC
+  , asF
+  , asV
+  )
 where
 
 import FPPL.Prelude
@@ -25,6 +39,38 @@ data Value v = B v
              | F Function
              | V Vec
   deriving (Show)
+
+asB :: Prism' (Value v) v
+asB = prism
+      B
+      (\ case
+          B y -> Right y
+          x   -> Left  x
+      )
+
+asC :: Prism' (Value v) Closure
+asC = prism
+      C
+      (\ case
+          C y -> Right y
+          x   -> Left  x
+      )
+
+asF :: Prism' (Value v) Function
+asF = prism
+      F
+      (\ case
+          F y -> Right y
+          x   -> Left  x
+      )
+
+asV :: Prism' (Value v) Vec
+asV = prism
+      V
+      (\ case
+          V y -> Right y
+          x   -> Left  x
+      )
 
 -- --------------------
 --
