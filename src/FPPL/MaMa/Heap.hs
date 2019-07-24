@@ -34,6 +34,10 @@ data Heap v = H { _heap   :: ! (Map Addr (Value v))
 
 -- initial heap
 
+instance Empty (Heap v) where
+  empty' = emptyHeap
+  null'  = M.null . _heap
+
 emptyHeap :: Heap v
 emptyHeap = H { _heap   = M.empty
               , _unused = map Addr [1 .. maxBound]

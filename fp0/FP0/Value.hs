@@ -3,6 +3,8 @@
 
 -- machine types for virtual MaMa machine
 
+{-# LANGUAGE TypeSynonymInstances #-}
+
 module FP0.Value
 where
 
@@ -13,10 +15,9 @@ import FPPL.MaMa.Value
 --
 -- simplest basic value: just an Int
 
-newtype BV0 = BV0 { _bv0Int :: Int }
-  deriving (Show)
+type BV0 = Int
 
 instance BasicValue BV0 where
-  asInt = prism' BV0 (Just . _bv0Int)
+  asInt = prism' id Just
 
 -- ----------------------------------------

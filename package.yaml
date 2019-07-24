@@ -55,10 +55,13 @@ library:
   source-dirs: src
   exposed-modules:
     - FPPL
+    - FPPL.MaMa
     - FPPL.MaMa.Code
     - FPPL.MaMa.Heap
     - FPPL.MaMa.Instr
+    - FPPL.MaMa.Interrupts
     - FPPL.MaMa.MachineState
+    - FPPL.MaMa.Run
     - FPPL.MaMa.SimpleTypes
     - FPPL.MaMa.Stack
     - FPPL.MaMa.Value

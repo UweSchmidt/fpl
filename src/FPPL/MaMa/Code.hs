@@ -18,6 +18,10 @@ import qualified Data.Vector as V
 newtype Code = CS { _cs :: Vector Instr }
   deriving (Show)
 
+instance Empty Code where
+  empty' = CS $ V.empty
+  null'  = V.null . _cs
+
 mkCode :: [Instr] -> Code
 mkCode = CS . V.fromList
 
