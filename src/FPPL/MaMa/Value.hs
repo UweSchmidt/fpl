@@ -132,9 +132,6 @@ theVector k (FC v) = (\ n -> FC n) <$> k v
 --
 -- lens for code pointer cp
 
-class CodePointer v where
-  cp :: Lens' v CodeAddr
-
 instance CodePointer Closure where
   cp k c = (\ n -> c { _ccp = n}) <$> k (_ccp c)
 
@@ -150,9 +147,6 @@ instance CodePointer (Value v) where
 --
 -- lens for global pointer gp
 
-class GlobalPointer v where
-  gp :: Lens' v Addr
-
 instance GlobalPointer Closure where
   gp k c = (\ n -> c { _cgp = n}) <$> k (_cgp c)
 
@@ -167,9 +161,6 @@ instance GlobalPointer (Value v) where
 -- ----------------------------------------
 --
 -- lens for arguments pointer ap
-
-class ArgsPointer v where
-  ap :: Lens' v Addr
 
 instance ArgsPointer Function where
   ap k f = (\ n -> f { _fap = n}) <$> k (_fap f)

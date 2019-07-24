@@ -10,8 +10,9 @@ import FPPL.Prelude
 -- address arithmetic
 
 class AddrArithm a where
-  incr' :: a -> Offset -> a
-  disp' :: a -> a -> Offset
+  incr'     :: a -> Offset -> a
+  disp'     :: a -> a -> Offset
+  isoOffset :: Iso' a Offset
 
 -- --------------------
 --
@@ -21,8 +22,9 @@ class AddrArithm a where
 type Offset = Int
 
 instance AddrArithm Offset where
-  incr' = (+)
-  disp' = (-)
+  incr'     = (+)
+  disp'     = (-)
+  isoOffset = id
 
 -- --------------------
 --
@@ -34,21 +36,53 @@ newtype Addr = Addr Word
 instance Empty Addr where
   empty' = Addr 0
 
+-- no address arithmetic here
+
+-- --------------------
+--
+-- addresses into contiguous store
+
+newtype Addr' a = AD Word
+  deriving (Eq, Show)
+
+instance Empty (Addr' a) where
+  empty' = AD maxBound
+
+instance AddrArithm (Addr' a) where
+  incr' (AD x) o      = AD . toEnum $ fromEnum x + o
+  disp' (AD x) (AD y) = fromEnum x - fromEnum y
+  isoOffset           = iso (\ (AD w) -> fromEnum w) (AD . toEnum)
+
 -- --------------------
 --
 -- code positions
 
-newtype CodeAddr = CA Word
-  deriving (Eq, Show)
+data IntoCode
 
-instance Empty CodeAddr where
-  empty' = CA maxBound
+type CodeAddr = Addr' IntoCode
 
-instance AddrArithm CodeAddr where
-  incr' (CA x) o      = CA . toEnum $ fromEnum x + o
-  disp' (CA x) (CA y) = fromEnum x - fromEnum y
+-- --------------------
+--
+-- stack adresses
 
-codeAddr2Offset :: Iso' CodeAddr Offset
-codeAddr2Offset = iso (\ (CA w) -> fromEnum w) (CA . toEnum)
+data IntoStack
+
+type StackAddr = Addr' IntoStack
+
+-- --------------------
+--
+-- overloaded lenses
+
+class CodePointer v where
+  cp :: Lens' v CodeAddr
+
+class GlobalPointer v where
+  gp :: Lens' v Addr
+
+class ArgsPointer v where
+  ap :: Lens' v Addr
+
+class StackPointer v where
+  sp :: Lens' v StackAddr
 
 -- ----------------------------------------

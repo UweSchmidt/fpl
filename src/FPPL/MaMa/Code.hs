@@ -22,7 +22,7 @@ mkCode :: [Instr] -> Code
 mkCode = CS . V.fromList
 
 instance Ixed Code where
-  ix i = theCS . ix (i ^. codeAddr2Offset)
+  ix i = theCS . ix (i ^. isoOffset)
 
 type instance Index   Code = CodeAddr
 type instance IxValue Code = Instr

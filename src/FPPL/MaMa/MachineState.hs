@@ -9,14 +9,13 @@ module FPPL.MaMa.MachineState
   , stack
   , heap
   , pc
-  , frp
-  , globp
+  , fp
   )
 where
 
 import FPPL.Prelude
 import FPPL.MaMa.SimpleTypes
-import FPPL.MaMa.Value
+-- import FPPL.MaMa.Value
 import FPPL.MaMa.Heap
 import FPPL.MaMa.Code
 import FPPL.MaMa.Stack
@@ -26,12 +25,12 @@ import FPPL.MaMa.Stack
 -- the machine state
 
 
-data State v = ST { _code   :: ! Code
-                  , _stack  :: ! (Stack v)
-                  , _heap   :: ! (Heap v)
-                  , _pc     :: ! CodeAddr       -- program counter
-                  , _frp    :: ! Offset         -- frame pointer
-                  , _globp  :: ! Vec            -- global pointer
+data State v = ST { _code           :: ! Code
+                  , _stack          :: ! (Stack v)
+                  , _heap           :: ! (Heap v)
+                  , _programCounter :: ! CodeAddr       -- program counter
+                  , _framePointer   :: ! StackAddr      -- frame pointer
+                  , _globalPointer  :: ! Addr           -- global pointer
                   }
   deriving (Show)
 
@@ -46,12 +45,17 @@ heap :: Lens' (State v) (Heap v)
 heap k s = (\ n -> s { _heap = n}) <$> k (_heap s)
 
 pc :: Lens' (State v) CodeAddr
-pc k s = (\ n -> s { _pc = n}) <$> k (_pc s)
+pc k s = (\ n -> s { _programCounter = n}) <$> k (_programCounter s)
 
-frp :: Lens' (State v) Offset
-frp k s = (\ n -> s { _frp = n}) <$> k (_frp s)
+fp :: Lens' (State v) StackAddr
+fp k s = (\ n -> s { _framePointer = n}) <$> k (_framePointer s)
 
-globp :: Lens' (State v) Vec
-globp k s = (\ n -> s { _globp = n}) <$> k (_globp s)
+instance GlobalPointer (State v) where
+  gp :: Lens' (State v) Addr
+  gp k s = (\ n -> s { _globalPointer = n}) <$> k (_globalPointer s)
+
+instance StackPointer (State v) where
+  sp :: Lens' (State v) StackAddr
+  sp = stack . sp
 
 -- ----------------------------------------

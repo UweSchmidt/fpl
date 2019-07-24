@@ -40,22 +40,31 @@ instance Ixed (Stack v) where
 type instance Index   (Stack v) = Offset
 type instance IxValue (Stack v) = StackValue v
 
+-- let fp = s ^. sp  -> p is a StackAddr of the last element in the sequence
+-- let s1 = push ??? s
+-- s1 & sp .~ fp  -> reset the stack to size when fp was set
+
+instance StackPointer (Stack v) where
+  sp k (SK v) = adjust <$> k toAdr
+    where
+      adjust n
+        = SK $ S.take (n ^. isoOffset + 1) v
+      toAdr
+        = (S.length v - 1) ^. from isoOffset
+
 -- convert offset to ix,
 -- -1 indicates illegal index
 
 offset2ix :: Offset -> Stack v -> Int
-offset2ix i s
-  | 0 <= i' && i' < l = i'
-  | otherwise         = -1
+offset2ix i (SK v)
+  | 0 <= i' && i' <= l' = i'
+  | otherwise           = -1
   where
-    l  = s ^. stackSize
-    i' = l + i - 1
+    l' = S.length v - 1
+    i' = l' + i
 
 values :: Lens' (Stack v) (Seq (StackValue v))
 values k (SK v) = (\ n -> SK n) <$> k v
-
-stackSize :: Getter (Stack v) Int
-stackSize = values . to S.length
 
 -- --------------------
 
