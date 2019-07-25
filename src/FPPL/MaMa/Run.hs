@@ -12,6 +12,7 @@ import FPPL.MaMa.Heap
 import FPPL.MaMa.Instr
 import FPPL.MaMa.Interrupts
 import FPPL.MaMa.MachineState
+import FPPL.MaMa.Options
 import FPPL.MaMa.SimpleTypes
 import FPPL.MaMa.Stack
 import FPPL.MaMa.Value
@@ -21,14 +22,6 @@ import Control.Monad.Reader
 import Control.Monad.State
 
 import qualified Data.Monoid (First)
-
--- ----------------------------------------
-
-data Options = MOPS { _mamaTrace :: Bool }
-  deriving (Show)
-
-defaultOptions :: Options
-defaultOptions = MOPS { _mamaTrace = True }
 
 -- ----------------------------------------
 

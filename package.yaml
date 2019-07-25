@@ -61,6 +61,7 @@ library:
     - FPPL.MaMa.Instr
     - FPPL.MaMa.Interrupts
     - FPPL.MaMa.MachineState
+    - FPPL.MaMa.Options
     - FPPL.MaMa.Run
     - FPPL.MaMa.SimpleTypes
     - FPPL.MaMa.Stack
