@@ -8,32 +8,21 @@ where
 
 import FPPL.Prelude
 import FPPL.MaMa.Code
-import FPPL.MaMa.Heap
+import FPPL.MaMa.Heap ()
 import FPPL.MaMa.Instr
 import FPPL.MaMa.Interrupts
 import FPPL.MaMa.MachineState
+import FPPL.MaMa.Monad
 import FPPL.MaMa.Options
 import FPPL.MaMa.SimpleTypes
 import FPPL.MaMa.Stack
 import FPPL.MaMa.Value
 
 import Control.Monad.Except
-import Control.Monad.Reader
-import Control.Monad.State
 
 import qualified Data.Monoid (First)
 
 -- ----------------------------------------
-
-type MaMa op v
-    = ExceptT () (ReaderT Options (StateT (MState op v) IO))
-
-runMaMa :: MaMa op v r
-        -> Options
-        -> MState op v
-        -> IO (Either () r, MState op v)
-runMaMa cmd opts state0
-  = runStateT (runReaderT (runExceptT cmd) opts) state0
 
 execMaMaProg :: BasicValue v => Code op -> Options -> IO (MState op v)
 execMaMaProg prog opts
