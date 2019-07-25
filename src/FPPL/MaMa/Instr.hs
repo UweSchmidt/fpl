@@ -12,11 +12,10 @@ data Instr' d op = Halt
                  | MkInt  Int
                  | MkBool Bool
                  | Jump d
-                 | Op0 op   -- 0-ary ops
-                 | Op1 op   -- unary ops
-                 | Op2 op   -- binary ops
+                 | Comp op   -- 0-ary ops
+                 | Noop
   deriving (Show)
 
-type Instr op = Instr' CodeAddr op
+type Instr op = Instr' Offset op
 
 -- --------------------
