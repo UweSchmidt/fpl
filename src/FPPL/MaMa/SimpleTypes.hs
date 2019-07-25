@@ -10,7 +10,7 @@ import FPPL.Prelude
 -- address arithmetic
 
 class AddrArithm a where
-  incr'     :: a -> Offset -> a
+  incr'     :: Offset -> a -> a
   disp'     :: a -> a -> Offset
   isoOffset :: Iso' a Offset
 
@@ -49,7 +49,7 @@ instance Empty (Addr' a) where
   empty' = AD maxBound
 
 instance AddrArithm (Addr' a) where
-  incr' (AD x) o      = AD . toEnum $ fromEnum x + o
+  incr' o (AD x)      = AD . toEnum $ fromEnum x + o
   disp' (AD x) (AD y) = fromEnum x - fromEnum y
   isoOffset           = iso (\ (AD w) -> fromEnum w) (AD . toEnum)
 

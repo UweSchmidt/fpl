@@ -5,8 +5,8 @@ module FPPL.MaMa.Stack
   , StackValue
   , push
   , pop
-  , pushBasic
-  , pushAddr
+  , pushSB
+  , pushSA
   , asSB   -- basic value on stack
   , asSA   -- address on stack
   )
@@ -76,11 +76,11 @@ push v s = s & values %~ (S.|> v)
 -- pop -1: remove value below top opf stack
 -- index out of bounds: return stack unchanged
 
-pushBasic :: v -> Stack v -> Stack v
-pushBasic v = push (asSB # v)
+pushSB :: v -> Stack v -> Stack v
+pushSB v = push (asSB # v)
 
-pushAddr :: Addr -> Stack v -> Stack v
-pushAddr v = push (asSA # v)
+pushSA :: Addr -> Stack v -> Stack v
+pushSA v = push (asSA # v)
 
 pop :: Offset -> Stack v -> Stack v
 pop i s = s & values %~ S.deleteAt (offset2ix i s)
