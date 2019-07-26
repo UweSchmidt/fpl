@@ -16,6 +16,7 @@ test0, test1 :: IO ()
 
 test0 = exec1 p0 >>= print
 test1 = exec1 p1 >>= print
+test2 = exec1 p1 >>= print
 
 -- ----------------------------------------
 --
@@ -35,6 +36,15 @@ p1 = mkCode
   , Comp Muli
   , MkInt 7
   , Comp Subi
+  , Halt
+  ]
+
+-- div by 0
+p2 :: Code1
+p2 = mkCode
+  [ MkInt 1
+  , MkInt 0
+  , Comp Divi
   , Halt
   ]
 
