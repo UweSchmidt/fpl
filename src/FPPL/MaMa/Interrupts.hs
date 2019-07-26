@@ -29,6 +29,11 @@ instance Empty Interrupt where
   empty' = Running
 
 -- --------------------
+--
+-- pretty printing
+
+instance Pretty Interrupt where
+  pretty = prettyIR
 
 prettyIR :: Interrupt -> String
 prettyIR = \ case

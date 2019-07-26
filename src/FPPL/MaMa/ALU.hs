@@ -18,7 +18,7 @@ import FPPL.MaMa.Value
 -- micro instructions for arithm.-logical ops
 
 class ALU op where
-  alu :: op -> MaMa op v ()
+  alu :: BasicValue v => op -> MaMa op v ()
 
 -- ----------------------------------------
 --

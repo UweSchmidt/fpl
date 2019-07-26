@@ -22,14 +22,15 @@ import FPPL.MaMa.Value
 
 -- ----------------------------------------
 
-execMaMaProg :: (BasicValue v, ALU op, Show op)
+execMaMaProg :: (BasicValue v, ALU op, Pretty op)
              => Code op
              -> Options
              -> IO (MState op v)
 execMaMaProg prog opts
   = snd <$> runMaMa execCode opts state0
   where
-    state0 = empty' & code .~ prog
+    state0 = empty' & code           .~ prog
+                    & pc . isoOffset .~ 0     -- start address is 0
 
 -- ----------------------------------------
 --
@@ -37,7 +38,7 @@ execMaMaProg prog opts
 
 -- the main execution loop
 
-execCode :: (BasicValue v, ALU op, Show op) => MaMa op v ()
+execCode :: (BasicValue v, ALU op, Pretty op) => MaMa op v ()
 execCode = do
   cont <- uses interrupt null'
   when cont $
@@ -45,8 +46,10 @@ execCode = do
 
 -- execute a single instruction
 
-execInstr :: (BasicValue v, ALU op, Show op) => MaMa op v ()
+execInstr :: (BasicValue v, ALU op, Pretty op) => MaMa op v ()
 execInstr = do
+  traceInstr
+
   i <- getInstr
   pc %= incr' 1
   evalInstr i
@@ -54,7 +57,7 @@ execInstr = do
 
 -- get args, eval and store results for a single instr
 
-evalInstr :: (BasicValue v, ALU op, Show op) => Instr op -> MaMa op v ()
+evalInstr :: (BasicValue v, ALU op, Pretty op) => Instr op -> MaMa op v ()
 evalInstr = \ case
 
   -- build basic values
@@ -71,6 +74,6 @@ evalInstr = \ case
   -- cpu control ops
   Halt      -> abort Terminated
   Noop      -> return ()
-  i         -> abort (NotImplemented $ show i)
+  i         -> abort (NotImplemented $ pretty' i)
 
 -- ----------------------------------------

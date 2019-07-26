@@ -1,3 +1,7 @@
+{-# LANGUAGE InstanceSigs #-}
+{-# LANGUAGE FlexibleInstances #-}
+{-# OPTIONS_GHC -fno-warn-orphans #-}
+
 -- simple machine types for virtual MaMa machine
 
 module FPPL.MaMa.SimpleTypes
@@ -49,9 +53,9 @@ instance Empty (Addr' a) where
   empty' = AD maxBound
 
 instance AddrArithm (Addr' a) where
-  incr' o (AD x)      = AD . toEnum $ fromEnum x + o
-  disp' (AD x) (AD y) = fromEnum x - fromEnum y
-  isoOffset           = iso (\ (AD w) -> fromEnum w) (AD . toEnum)
+  incr' o (AD x)      = AD . fromIntegral $ fromIntegral x + o
+  disp' (AD x) (AD y) = fromIntegral x - fromIntegral y
+  isoOffset           = iso (\ (AD w) -> fromIntegral w) (AD . fromIntegral)
 
 -- --------------------
 --
@@ -84,5 +88,27 @@ class ArgsPointer v where
 
 class StackPointer v where
   sp :: Lens' v StackAddr
+
+-- ----------------------------------------
+--
+-- pretty printing
+
+instance Pretty (Addr' a) where
+  pretty v@(AD w)
+    | null' v = "  <null>"
+    | otherwise = printf "%8i" $ toInteger w
+
+instance Pretty Addr where
+  pretty :: Addr -> String
+  pretty v@(Addr w)
+    | null' v = "  <null>"
+    | otherwise = printf "%8i" $ toInteger w
+
+instance Pretty Offset where
+  pretty  = printf "%8i"
+  pretty' = show
+
+instance Pretty Bool where
+  pretty = map toLower . show
 
 -- ----------------------------------------

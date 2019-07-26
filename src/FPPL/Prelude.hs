@@ -5,7 +5,8 @@
 
 
 module FPPL.Prelude
-       ( ByteString
+       ( -- basic types
+         ByteString
        , LazyByteString
        , Map
        , Set
@@ -13,22 +14,29 @@ module FPPL.Prelude
        , Text
        , LazyText
        , Vector
+
+         -- classes
        , IsEmpty(..)
        , Empty(..)
+       , Pretty(..)
        , IsString(..)
+
          -- Data.Aeson
        , ToJSON(..)
        , FromJSON(..)
        , (.=?!)
        , (.:?!)
+
          -- Data.Maybe
        , fromMaybe
        , isNothing
        , isJust
        , listToMaybe
+
          -- Control.Monad
        , module Control.Applicative
        , module Control.Monad
+
          -- Data.List
        , intercalate
        , isPrefixOf
@@ -41,26 +49,35 @@ module FPPL.Prelude
        , zip4
        , zip5
        , zip6
+
          -- Data.Char
        , module Data.Char
+       , module Text.Printf
+
        , module Data.Foldable
        , module Data.Semigroup
+
          -- Data.Function
        , on
+
          -- Data.Read
        , readMaybe
+
          -- System.FilePath
        , FilePath
        , (</>)
        , takeFileName
        , takeDirectory
+
          -- Control.Arrow
-       , first, second, (&&&), (***)
+       , first, second, (&&&), (***), (>>>)
+
          -- this module
        , compareBy
        , compareJust
        , compareJust'
        , partBy
+
          -- lens stuff
        , module Control.Lens
        , IsoString(..)
@@ -77,6 +94,7 @@ module FPPL.Prelude
        , isoSeqList
        , isA
        , intBool
+
          -- utilities
        , (.||.)
        , partitionBy
@@ -84,6 +102,7 @@ module FPPL.Prelude
        , searchPos
        , removeAt
        , insertAt
+
          -- Monad ops
        , whenM
        , unlessM
@@ -171,6 +190,18 @@ class Empty v where
   null' = (== empty')
 
   -- law:  null' empty' == True
+
+-- ----------------------------------------
+
+class Pretty v where
+  pretty  :: v -> String
+
+  -- pretty but without leading whitespace
+  pretty' :: v -> String
+  pretty' = dropWhile isSpace . pretty
+
+  default pretty :: (Show v) => v -> String
+  pretty = show
 
 -- ----------------------------------------
 --

@@ -13,7 +13,7 @@ import FPPL.MaMa.Instr
 import FPPL.MaMa.Interrupts
 import FPPL.MaMa.MachineState
 import FPPL.MaMa.Monad
-import FPPL.MaMa.Options ()
+import FPPL.MaMa.Options
 import FPPL.MaMa.SimpleTypes
 import FPPL.MaMa.Stack
 import FPPL.MaMa.Value ()
@@ -21,6 +21,7 @@ import FPPL.MaMa.Value ()
 import Control.Monad.Except
 
 import qualified Data.Monoid (First)
+import System.IO (hPutStrLn, stderr)
 
 -- ----------------------------------------
 --
@@ -158,5 +159,21 @@ abort ir = do
   throwError ()
 
 {-# INLINE abort #-}
+
+-- ----------------------------------------
+
+traceInstr :: (Pretty op) => MaMa op v ()
+traceInstr =
+  whenM (view mamaTrace) $ do
+    is' <- getInstr
+    pc' <- use pc
+    putStrLnStderr $ pretty (pc', is')
+
+-- ----------------------------------------
+--
+-- ausiliary IO actions
+
+putStrLnStderr :: String -> MaMa op v ()
+putStrLnStderr = liftIO . hPutStrLn stderr
 
 -- ----------------------------------------

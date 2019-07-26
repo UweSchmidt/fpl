@@ -30,7 +30,6 @@ data Heap v = H { _heap   :: ! (Map Addr (Value v))
                 , _unused :: [Addr]
                 , _alcnt  :: Int             -- allocation count
                 }
-            deriving (Show)
 
 -- initial heap
 
@@ -87,5 +86,13 @@ theAlcnt k h = (\ n -> h { _alcnt = n}) <$> k (_alcnt h)
 
 theHeapCnt :: Getter (Heap v) Int
 theHeapCnt = theHeap . to M.size
+
+-- ----------------------------------------
+
+instance Show (Heap v) where
+  show = pretty
+
+instance {- Pretty v => -} Pretty (Heap v) where
+  pretty _h = "<heap>"
 
 -- ----------------------------------------

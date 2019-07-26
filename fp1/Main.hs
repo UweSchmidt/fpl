@@ -2,13 +2,13 @@ module Main
   -- (main)
 where
 
-import qualified FPPL
-import           FP1.Value
-
-type Value = FPPL.Value BV1
-type Heap  = FPPL.Heap  BV1
+import FPPL
+import FP1.Value
 
 main :: IO ()
 main = do
   putStrLn "fp1: nothing yet implemented"
   return ()
+
+p0 :: Code1
+p0 = mkCode [Halt]

@@ -4,6 +4,7 @@
 -- machine types for virtual MaMa machine
 
 {-# LANGUAGE TypeSynonymInstances #-}
+{-# OPTIONS_GHC -fno-warn-orphans #-}
 
 module FP0.Value
 where
