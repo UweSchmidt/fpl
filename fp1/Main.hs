@@ -101,10 +101,30 @@ p6 = mkCode
   , Halt    -- l2: halt
   ]
 
+-- build heap object and deref object
 p7 :: Code1
 p7 = mkCode
   [ LoadInt 42
   , MkBasic
+  , GetBasic
+  , Halt
+  ]
+
+-- duplicate value on stack (1)
+p8 :: Code1
+p8 = mkCode
+  [ LoadInt 42
+  , Dup
+  , Comp EQi
+  , Halt
+  ]
+
+-- duplicate value on stack (2)
+p9 :: Code1
+p9 = mkCode
+  [ LoadInt 42
+  , MkBasic
+  , Dup
   , GetBasic
   , Halt
   ]

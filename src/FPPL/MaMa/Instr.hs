@@ -17,6 +17,7 @@ data Instr' d op = LoadInt  Int
                  | Jump d
                  | Branch Bool d
                  | Comp op   -- 0-ary ops
+                 | Dup
                  | Halt
                  | Noop
   deriving (Show)
@@ -42,6 +43,7 @@ prettyInstr = \ case
 
   Jump     d -> "jump" `app8` pretty' d
   Comp   op' -> pretty' op'
+  Dup        -> "dup"
   Halt       -> "halt"
   Noop       -> "noop"
 

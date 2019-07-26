@@ -41,6 +41,11 @@ getInstr = do
 --
 -- stack micro instrucctions
 
+-- indexed acces into stack
+
+ixS :: Offset -> MaMa op v (StackValue v)
+ixS i = getStack (ix i)
+
 -- take value from top of stack
 
 popS :: MaMa op v (StackValue v)
@@ -71,18 +76,20 @@ popAddr = do
   v <- popS
   checkAddr (v ^? asSA)
 
+pushS :: StackValue v -> MaMa op v ()
+pushS v = stack %= push v
+
 -- push a basic value onto the stack
 
 pushBasic :: v -> MaMa op v ()
-pushBasic v = do
-  stack %= pushSB v
+pushBasic v = stack %= pushSB v
 
 -- push a heap address onto the stack
 
 pushAddr :: Addr -> MaMa op v ()
-pushAddr a = do
-  stack %= pushSA a
+pushAddr a = stack %= pushSA a
 
+{-# INLINE pushS #-}
 {-# INLINE pushBasic #-}
 {-# INLINE pushAddr #-}
 

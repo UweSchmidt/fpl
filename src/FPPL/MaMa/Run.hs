@@ -86,6 +86,10 @@ evalInstr = \case
                    when (b == b1) $
                      pc %= incr' d
 
+                -- duplicate top of stack
+  Dup        -> do v <- ixS 0
+                   pushS v
+
                 -- cpu control ops
   Halt       -> abort Terminated
   Noop       -> return ()
