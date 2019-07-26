@@ -44,7 +44,7 @@ getInstr = do
 popS :: MaMa op v (StackValue v)
 popS = do
   v <- getStack (ix 0)
-  stack %= pop 1
+  stack %= pop 0
   return v
 
 -- take basic value
