@@ -112,3 +112,13 @@ instance Pretty Bool where
   pretty = map toLower . show
 
 -- ----------------------------------------
+
+app' :: Int -> String -> String -> String
+app' n xs ys = xs ++ spc ++ ys
+  where
+    spc = replicate (n - length xs) ' '
+
+app8 :: String -> String -> String
+app8 = app' 8
+
+-- ----------------------------------------

@@ -10,13 +10,14 @@ import FPPL.MaMa.SimpleTypes
 
 -- ----------------------------------------
 
-data Instr' d op = MkInt  Int
-                 | MkBool Bool
+data Instr' d op = LoadInt  Int
+                 | LoadBool Bool
+                 | GetBasic
                  | Jump d
+                 | Branch Bool d
                  | Comp op   -- 0-ary ops
                  | Halt
                  | Noop
-                 | NotInUse
   deriving (Show)
 
 type Instr op = Instr' Offset op
@@ -28,13 +29,19 @@ instance (Pretty d, Pretty op) => Pretty (Instr' d op) where
 
 prettyInstr :: (Pretty d, Pretty op) => Instr' d op -> String
 prettyInstr = \ case
-  MkInt  i -> printf "mkInt   " ++ pretty' i
-  MkBool b -> printf "mkBool  " ++ pretty' b
-  Jump   d -> printf "jump    " ++ pretty' d
-  Comp op' -> pretty' op'
-  Halt     -> "halt"
-  Noop     -> "noop"
-  NotInUse -> "unused"
+  LoadInt  i -> "loadc" `app8` pretty' i
+  LoadBool b -> "loadc" `app8` pretty' b
+  GetBasic   -> "getbasic"
+  Branch b d -> ( if b
+                  then "brtrue"
+                  else "brfalse"
+                )
+                `app8` pretty' d
+
+  Jump     d -> "jump" `app8` pretty' d
+  Comp   op' -> pretty' op'
+  Halt       -> "halt"
+  Noop       -> "noop"
 
 instance (Pretty op) => Pretty (CodeAddr, Instr op) where
   pretty (pc, instr) = pretty pc ++ ": " ++ pretty instr ++ target instr

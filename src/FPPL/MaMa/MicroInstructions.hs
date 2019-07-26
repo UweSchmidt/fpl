@@ -8,7 +8,7 @@ where
 
 import FPPL.Prelude
 import FPPL.MaMa.Code
-import FPPL.MaMa.Heap ()
+import FPPL.MaMa.Heap
 import FPPL.MaMa.Instr
 import FPPL.MaMa.Interrupts
 import FPPL.MaMa.MachineState
@@ -16,7 +16,7 @@ import FPPL.MaMa.Monad
 import FPPL.MaMa.Options
 import FPPL.MaMa.SimpleTypes
 import FPPL.MaMa.Stack
-import FPPL.MaMa.Value ()
+import FPPL.MaMa.Value
 
 import Control.Monad.Except
 
@@ -38,6 +38,8 @@ getInstr = do
   getCode (ix pc')
 
 -- --------------------
+--
+-- stack micro instrucctions
 
 -- take value from top of stack
 
@@ -83,6 +85,29 @@ pushAddr a = do
 
 {-# INLINE pushBasic #-}
 {-# INLINE pushAddr #-}
+
+-- --------------------
+--
+-- heap micro instrucctions
+
+allocHeap :: Prism' (Value v) v -> v -> MaMa op v Addr
+allocHeap toval v = do
+  h <- use heap
+  let (a, h') = alloc (toval # v) h
+  heap .= h'
+  return a
+
+allocB :: v -> MaMa op v Addr
+allocB = allocHeap asB
+
+allocC :: Closure -> MaMa op Closure Addr
+allocC = allocHeap asC
+
+allocF :: Function -> MaMa op Function Addr
+allocF = allocHeap asF
+
+allocV :: Vec -> MaMa op Vec Addr
+allocV = allocHeap asV
 
 -- --------------------
 --

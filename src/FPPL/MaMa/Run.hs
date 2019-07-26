@@ -57,23 +57,31 @@ execInstr = do
 
 -- get args, eval and store results for a single instr
 
-evalInstr :: (BasicValue v, ALU op, Pretty op) => Instr op -> MaMa op v ()
-evalInstr = \ case
+evalInstr :: (BasicValue v, ALU op) => Instr op -> MaMa op v ()
+evalInstr = \case
 
-  -- build basic values
-  MkInt  i  -> pushBasic (asInt # i)
-  MkBool b  -> pushBasic (asBool # b)
+                -- push basic values onto stack
+  LoadInt  i -> pushBasic (asInt # i)
+  LoadBool b -> pushBasic (asBool # b)
 
-  -- exec an operation
-  -- arity may vary 0, 1, 2, ...
-  Comp op'  -> alu op'
+                -- wrap a basic value into a new heap opject
+  GetBasic   -> do v <- popBasic
+                   a <- allocB v
+                   pushAddr a
 
-  -- program flow
-  Jump d    -> pc %= incr' d
+  Comp op'   -> -- apply an ALU operator,  arity may be 0, 1, 2, ...
+                alu op'
 
-  -- cpu control ops
-  Halt      -> abort Terminated
-  Noop      -> return ()
-  i         -> abort (NotImplemented $ pretty' i)
+                -- unconditional jump with displaceent
+  Jump d     -> pc %= incr' d
+
+                -- conditional jump with displaceent
+  Branch b d -> do b1 <- popBV asBool
+                   when (b == b1) $
+                     pc %= incr' d
+
+                -- cpu control ops
+  Halt       -> abort Terminated
+  Noop       -> return ()
 
 -- ----------------------------------------
