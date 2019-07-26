@@ -65,9 +65,15 @@ evalInstr = \case
   LoadBool b -> pushBasic (asBool # b)
 
                 -- wrap a basic value into a new heap opject
-  GetBasic   -> do v <- popBasic
+  MkBasic    -> do v <- popBasic
                    a <- allocB v
                    pushAddr a
+
+                -- unwrap a basic value out of a heap object
+  GetBasic   -> do a <- popAddr
+                   v <- deref a
+                   b <- checkBasic (v ^? asB)
+                   pushBasic b
 
   Comp op'   -> -- apply an ALU operator,  arity may be 0, 1, 2, ...
                 alu op'

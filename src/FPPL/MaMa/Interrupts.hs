@@ -18,6 +18,7 @@ data Interrupt
   = Running
   | Terminated
   | NullPointer
+  | IllegalHeapAddr
   | IllegalCodeAddr
   | IllegalStackAddr
   | IllegalArgument String
@@ -40,6 +41,7 @@ prettyIR = \ case
       Running           -> ""
       Terminated        -> "Program terminated"
       NullPointer       -> "Null pointer exception"
+      IllegalHeapAddr   -> "Illegal heap access"
       IllegalCodeAddr   -> "Illegal code access"
       IllegalStackAddr  -> "Illegal value stack access"
       IllegalArgument s -> "Illegal argument" +:+ s

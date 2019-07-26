@@ -12,6 +12,7 @@ import FPPL.MaMa.SimpleTypes
 
 data Instr' d op = LoadInt  Int
                  | LoadBool Bool
+                 | MkBasic
                  | GetBasic
                  | Jump d
                  | Branch Bool d
@@ -31,6 +32,7 @@ prettyInstr :: (Pretty d, Pretty op) => Instr' d op -> String
 prettyInstr = \ case
   LoadInt  i -> "loadc" `app8` pretty' i
   LoadBool b -> "loadc" `app8` pretty' b
+  MkBasic    -> "mkbasic"
   GetBasic   -> "getbasic"
   Branch b d -> ( if b
                   then "brtrue"

@@ -88,6 +88,7 @@ nudel = mkCode
   , Halt
   ]
 
+-- branch and jump
 p6 :: Code1
 p6 = mkCode
   [ LoadInt 1
@@ -98,6 +99,14 @@ p6 = mkCode
   , Jump 1
   , LoadInt 42
   , Halt    -- l2: halt
+  ]
+
+p7 :: Code1
+p7 = mkCode
+  [ LoadInt 42
+  , MkBasic
+  , GetBasic
+  , Halt
   ]
 
 

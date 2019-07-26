@@ -109,6 +109,22 @@ allocF = allocHeap asF
 allocV :: Vec -> MaMa op Vec Addr
 allocV = allocHeap asV
 
+deref :: Addr -> MaMa op v (Value v)
+deref a
+  | null' a   = abort NullPointer
+  | otherwise = do
+      x1 <- use (heap . at a)
+      checkHeapAccess x1
+
+derefBasic :: Addr -> MaMa op v v
+derefBasic a
+  | null' a   = abort NullPointer
+  | otherwise = do
+      x1 <- use (heap . at a)
+      x2 <- checkHeapAccess x1
+      x3 <- checkBasic (x2 ^? asB)
+      return x3
+
 -- --------------------
 --
 -- access a state component
@@ -165,6 +181,9 @@ checkInt = check  (IllegalArgument "Int value expected")
 
 checkBool :: Maybe a -> MaMa op v a
 checkBool = check  (IllegalArgument "Bool value expected")
+
+checkHeapAccess :: Maybe a -> MaMa op v a
+checkHeapAccess = check IllegalHeapAddr
 
 {-# INLINE checkBasic #-}
 {-# INLINE checkAddr #-}
