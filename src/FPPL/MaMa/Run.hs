@@ -78,6 +78,14 @@ evalInstr = \case
                    b <- checkBasic (v ^? asB)
                    pushBasic b
 
+                -- push the value of a local var onto stack
+  PushLoc  d -> do v <- ixS d
+                   pushS v
+
+                -- push a value from the global vector onto stack
+  PushGlb  d -> do a <- ixG d
+                   pushAddr a
+
   Comp op'   -> -- apply an ALU operator,  arity may be 0, 1, 2, ...
                 alu op'
 
@@ -88,10 +96,6 @@ evalInstr = \case
   Branch b d -> do b1 <- popBV asBool
                    when (b == b1) $
                      pc %= incr' d
-
-                -- duplicate top of stack
-  Dup        -> do v <- ixS 0
-                   pushS v
 
                 -- cpu control ops
   Halt       -> abort Terminated

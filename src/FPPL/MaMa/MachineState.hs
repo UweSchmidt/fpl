@@ -80,3 +80,53 @@ interrupt :: Lens' (MState op v) Interrupt
 interrupt k s = (\ n -> s { _interrupt = n}) <$> k (_interrupt s)
 
 -- ----------------------------------------
+
+instance (Pretty op) => Pretty (MState op v) where
+  pretty = prettyMState
+
+prettyMState :: (Pretty op) => MState op v -> String
+prettyMState s =
+  prettyCode
+  ++
+  prettyRegisters
+{-
+  ++
+  prettyPc (s ^. pc)
+  ++
+  prettyInterrupt (s ^. interrupt)
+  ++
+  prettyStack (s ^.stack)
+  ++
+  prettyFp (s ^. fp)
+  ++
+  prettyGp (s ^. gp)
+  ++
+  prettyHeap (s ^. heap)
+-}
+  ++
+  []
+  where
+    prettyCode ::  String
+    prettyCode =
+      (unlines $ header '-' "instructions")
+      ++
+      pretty (s ^. code)
+
+    prettyRegisters :: String
+    prettyRegisters =
+      (unlines $ header '-' "registers")
+      ++
+      unlines
+      [ "pc" `app8` ": " ++ pretty (s ^. pc)
+      , "fp" `app8` ": " ++ pretty (s ^. fp)
+      , "gp" `app8` ": " ++ pretty (s ^. gp)
+      , "ir" `app8` ": " ++ pretty (s ^. interrupt)
+      ]
+
+
+-- ----------------------------------------
+
+header :: Char -> String -> [String]
+header c xs = ["", xs, map (const c) xs, ""]
+
+-- ----------------------------------------

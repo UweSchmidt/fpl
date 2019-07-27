@@ -134,6 +134,17 @@ derefBasic a
 
 -- --------------------
 --
+-- access global vector
+
+ixG :: Offset -> MaMa op v Addr
+ixG offset = do
+  val <- use gp >>= deref
+  vec <- checkVec (val ^? asV)
+  adr <- checkVecIx (vec ^? ix offset)
+  return adr
+
+-- --------------------
+--
 -- access a state component
 -- if access undefined abort execution
 
@@ -174,6 +185,12 @@ checkBasic = check (IllegalArgument "Basic value expected")
 checkAddr :: Maybe a -> MaMa op v a
 checkAddr  = check (IllegalArgument "Heap address expected")
 
+checkVec :: Maybe a -> MaMa op v a
+checkVec  = check (IllegalArgument "Vector expected")
+
+checkVecIx :: Maybe a -> MaMa op v a
+checkVecIx = check IllegalVecIndex
+
 checkCode :: Maybe a -> MaMa op v a
 checkCode  = check IllegalCodeAddr
 
@@ -191,6 +208,8 @@ checkBool = check  (IllegalArgument "Bool value expected")
 
 checkHeapAccess :: Maybe a -> MaMa op v a
 checkHeapAccess = check IllegalHeapAddr
+
+
 
 {-# INLINE checkBasic #-}
 {-# INLINE checkAddr #-}

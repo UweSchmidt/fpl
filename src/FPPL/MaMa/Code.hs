@@ -1,6 +1,11 @@
 {-# LANGUAGE TypeFamilies #-}
 
 module FPPL.MaMa.Code
+  ( Code
+  , theCS
+  , theInstrList
+  , mkCode
+  )
 where
 
 import FPPL.Prelude
@@ -23,7 +28,7 @@ instance Empty (Code op) where
   null'  = V.null . _cs
 
 mkCode :: [Instr op] -> Code op
-mkCode = CS . V.fromList
+mkCode is = theInstrList # is
 
 instance Ixed (Code op) where
   ix i = theCS . ix (i ^. isoOffset)
@@ -31,7 +36,18 @@ instance Ixed (Code op) where
 type instance Index   (Code op) = CodeAddr
 type instance IxValue (Code op) = (Instr op)
 
-theCS :: Lens' (Code op) (Vector (Instr op))
-theCS k (CS v) = (\ n -> CS n) <$> k v
+theCS :: Iso' (Code op) (Vector (Instr op))
+theCS = iso _cs CS
 
+theInstrList :: Iso' (Code op) [Instr op]
+theInstrList = theCS . isoVectorList
+
+-- ----------------------------------------
+
+instance (Pretty op) => Pretty (Code op) where
+  pretty cs =
+    unlines . map pretty $ zip is (cs ^. theInstrList)
+    where
+      is :: [CodeAddr]
+      is = map (isoOffset #) [0..]
 -- ----------------------------------------

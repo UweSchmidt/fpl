@@ -15,10 +15,11 @@ data Instr' d op = LoadInt  Int
                  | LoadLit  op String
                  | MkBasic
                  | GetBasic
+                 | PushLoc  Offset
+                 | PushGlb  Offset
                  | Jump d
                  | Branch Bool d
                  | Comp op   -- 0-ary ops
-                 | Dup
                  | Halt
                  | Noop
   deriving (Show)
@@ -32,11 +33,13 @@ instance (Pretty d, Pretty op) => Pretty (Instr' d op) where
 
 prettyInstr :: (Pretty d, Pretty op) => Instr' d op -> String
 prettyInstr = \ case
-  LoadInt  i     -> "loadc" `app8` pretty' i
-  LoadBool b     -> "loadc" `app8` pretty' b
-  LoadLit op' xs -> "loadc" `app8` (pretty op' `app4` show xs)
+  LoadInt  i     -> "loadc"   `app8` pretty' i
+  LoadBool b     -> "loadc"   `app8` pretty' b
+  LoadLit op' xs -> "loadc"   `app8` (pretty op' `app4` show xs)
   MkBasic        -> "mkbasic"
   GetBasic       -> "getbasic"
+  PushLoc     d  -> "pushloc" `app8` pretty' d
+  PushGlb     d  -> "pushglb" `app8` pretty' d
   Branch    b d  -> ( if b
                       then "brtrue"
                       else "brfalse"
@@ -45,7 +48,6 @@ prettyInstr = \ case
 
   Jump         d -> "jump" `app8` pretty' d
   Comp       op' -> pretty' op'
-  Dup            -> "dup"
   Halt           -> "halt"
   Noop           -> "noop"
 
@@ -53,7 +55,7 @@ instance (Pretty op) => Pretty (CodeAddr, Instr op) where
   pretty (pc, instr) = pretty pc ++ ": " ++ pretty instr ++ target instr
     where
       target = \case
-        Jump d -> " --> " ++ pretty' (incr' (1 + d) pc)
+        Jump d -> "    --> " ++ pretty' (incr' (1 + d) pc)
         _      -> ""
 
 -- ----------------------------------------

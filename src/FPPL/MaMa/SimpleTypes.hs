@@ -84,7 +84,7 @@ class GlobalPointer v where
   gp :: Lens' v Addr
 
 class ArgsPointer v where
-  ap :: Lens' v Addr
+  argp :: Lens' v Addr
 
 class StackPointer v where
   sp :: Lens' v StackAddr

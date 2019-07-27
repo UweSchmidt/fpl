@@ -160,13 +160,13 @@ instance GlobalPointer (Value v) where
 
 -- ----------------------------------------
 --
--- lens for arguments pointer ap
+-- lens for arguments pointer argp
 
 instance ArgsPointer Function where
-  ap k f = (\ n -> f { _fap = n}) <$> k (_fap f)
+  argp k f = (\ n -> f { _fap = n}) <$> k (_fap f)
 
 instance ArgsPointer (Value v) where
-  ap k (F (FU cp' ap' gp')) = (\ n -> F (FU cp' n gp')) <$> k ap'
-  ap k v                    = const v                   <$> k empty'
+  argp k (F (FU cp' ap' gp')) = (\ n -> F (FU cp' n gp')) <$> k ap'
+  argp k v                    = const v                   <$> k empty'
 
 -- ----------------------------------------

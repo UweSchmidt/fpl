@@ -92,6 +92,7 @@ module FPPL.Prelude
        , isoMapList
        , isoSetList
        , isoSeqList
+       , isoVectorList
        , isA
        , intBool
 
@@ -138,6 +139,7 @@ import           Data.Text (Text)
 import qualified Data.Text as T
 import qualified Data.Text.Lazy as LT
 import           Data.Vector (Vector)
+import qualified Data.Vector as V
 import           Numeric (readHex)
 import           System.FilePath
 import           Text.Printf (printf, PrintfArg)
@@ -348,6 +350,9 @@ isoSetList = iso S.toList S.fromList
 isoSeqList :: Iso' (Seq a) [a]
 isoSeqList = iso toList L.fromList
 {-# INLINE isoSeqList #-}
+
+isoVectorList :: Iso' (Vector a) [a]
+isoVectorList = iso V.toList V.fromList
 
 isA :: (a -> Bool) -> Prism' a a
 isA p = prism id (\ o -> (if p o then Right else Left) o)

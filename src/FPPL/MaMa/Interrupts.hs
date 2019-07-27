@@ -21,6 +21,7 @@ data Interrupt
   | IllegalHeapAddr
   | IllegalCodeAddr
   | IllegalStackAddr
+  | IllegalVecIndex
   | IllegalArgument String
   | NotImplemented  String
   | DivBy0
@@ -44,6 +45,7 @@ prettyIR = \ case
       IllegalHeapAddr   -> "Illegal heap access"
       IllegalCodeAddr   -> "Illegal code access"
       IllegalStackAddr  -> "Illegal value stack access"
+      IllegalVecIndex   -> "Illegal index into vector"
       IllegalArgument s -> "Illegal argument" +:+ s
       NotImplemented  s -> "Not implemented"  +:+ s
       DivBy0            -> "division by zero"
@@ -52,5 +54,6 @@ prettyIR = \ case
 (+:+) s1 s2
   | null s2   = s1
   | otherwise = s1 ++ ": " ++ s2
+
 
 -- ----------------------------------------

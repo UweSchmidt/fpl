@@ -115,7 +115,7 @@ p7 = mkCode
 p8 :: Code1
 p8 = mkCode
   [ LoadInt 42
-  , Dup
+  , PushLoc 0
   , Comp EQi
   , Halt
   ]
@@ -125,7 +125,7 @@ p9 :: Code1
 p9 = mkCode
   [ LoadInt 42
   , MkBasic
-  , Dup
+  , PushLoc 0
   , GetBasic
   , Halt
   ]
