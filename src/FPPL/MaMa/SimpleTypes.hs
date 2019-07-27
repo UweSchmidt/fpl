@@ -121,4 +121,7 @@ app' n xs ys = xs ++ spc ++ ys
 app8 :: String -> String -> String
 app8 = app' 8
 
+app4 :: String -> String -> String
+app4 = app' 4
+
 -- ----------------------------------------

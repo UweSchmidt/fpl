@@ -18,7 +18,34 @@ import FPPL.MaMa.Value
 -- micro instructions for arithm.-logical ops
 
 class ALU op where
+
+  -- the compute operator map
+  -- each operator is associated with an action
+  -- getting the arguments from the stack,
+  -- apply the operation and push the result back
+  -- onto the stack
+  --
+  -- the alu function is used in the implementation
+  -- Comp op
+
   alu :: BasicValue v => op -> MaMa op v ()
+
+  -- for pushing arbitrary basic values built from
+  -- literals onto the stack, we need representation
+  -- as literal, here as string, and a conversion
+  -- from string to a basic value, for every variant
+  -- in the basic value v there must be a conversion
+  -- operator from string.
+  -- The conversion may fail, so it may raise an
+  -- IllegalArgument interrupt
+  --
+  -- Int and Bool literals are handled by the
+  -- builtin LoadInt and LoadBool machine instructions
+  --
+  -- fromLiteral is used in the implementation of
+  -- the instruction LoadVal op
+
+  fromLiteral :: BasicValue v => op -> String -> MaMa op v ()
 
 -- ----------------------------------------
 --
@@ -39,6 +66,9 @@ ex0 :: Prism' v res
     -> MaMa op v ()
 ex0 asr c = do
   pushBasic (asr # c)
+
+exAbort :: MaMa op v ()
+exAbort = abort (NotImplemented "compute op")
 
 -- ----------------------------------------
 --
@@ -183,5 +213,31 @@ exDivInt = ex2'M asInt asInt asInt div'
     div' x y
       | y == 0    = abort DivBy0
       | otherwise = return $ x `div` y
+
+-- ----------------------------------------
+--
+-- the configurable conversion
+
+pushLit :: (String -> Maybe a) -> Prism' v a -> String -> MaMa op v ()
+pushLit cv asVal xs = do
+  x <- checkPrim (cv xs)
+  pushBasic (asVal # x)
+
+-- ----------------------------------------
+
+pushLitInt :: BasicValue v => String -> MaMa op v ()
+pushLitInt = pushLit readMaybe asInt
+
+pushLitBool :: BasicValue v => String -> MaMa op v ()
+pushLitBool = pushLit readMaybe' asBool
+  where
+    readMaybe' "false" = Just False
+    readMaybe' "true"  = Just True
+    readMaybe' _       = Nothing
+
+-- the default case: abort exec
+
+pushLitAbort :: String -> MaMa op v ()
+pushLitAbort _ = abort (NotImplemented "litteral conversion op")
 
 -- ----------------------------------------

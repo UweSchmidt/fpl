@@ -64,6 +64,9 @@ evalInstr = \case
   LoadInt  i -> pushBasic (asInt # i)
   LoadBool b -> pushBasic (asBool # b)
 
+  LoadLit op' xs -- load an arbitrary basic value represented as string literal
+             -> fromLiteral op' xs
+
                 -- wrap a basic value into a new heap opject
   MkBasic    -> do v <- popBasic
                    a <- allocB v

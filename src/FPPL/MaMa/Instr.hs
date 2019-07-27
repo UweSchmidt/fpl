@@ -12,6 +12,7 @@ import FPPL.MaMa.SimpleTypes
 
 data Instr' d op = LoadInt  Int
                  | LoadBool Bool
+                 | LoadLit  op String
                  | MkBasic
                  | GetBasic
                  | Jump d
@@ -31,21 +32,22 @@ instance (Pretty d, Pretty op) => Pretty (Instr' d op) where
 
 prettyInstr :: (Pretty d, Pretty op) => Instr' d op -> String
 prettyInstr = \ case
-  LoadInt  i -> "loadc" `app8` pretty' i
-  LoadBool b -> "loadc" `app8` pretty' b
-  MkBasic    -> "mkbasic"
-  GetBasic   -> "getbasic"
-  Branch b d -> ( if b
-                  then "brtrue"
-                  else "brfalse"
-                )
-                `app8` pretty' d
+  LoadInt  i     -> "loadc" `app8` pretty' i
+  LoadBool b     -> "loadc" `app8` pretty' b
+  LoadLit op' xs -> "loadc" `app8` (pretty op' `app4` show xs)
+  MkBasic        -> "mkbasic"
+  GetBasic       -> "getbasic"
+  Branch    b d  -> ( if b
+                      then "brtrue"
+                      else "brfalse"
+                    )
+                    `app8` pretty' d
 
-  Jump     d -> "jump" `app8` pretty' d
-  Comp   op' -> pretty' op'
-  Dup        -> "dup"
-  Halt       -> "halt"
-  Noop       -> "noop"
+  Jump         d -> "jump" `app8` pretty' d
+  Comp       op' -> pretty' op'
+  Dup            -> "dup"
+  Halt           -> "halt"
+  Noop           -> "noop"
 
 instance (Pretty op) => Pretty (CodeAddr, Instr op) where
   pretty (pc, instr) = pretty pc ++ ": " ++ pretty instr ++ target instr

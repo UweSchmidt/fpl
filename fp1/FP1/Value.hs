@@ -1,4 +1,5 @@
 {-# LANGUAGE LambdaCase #-}
+{-# LANGUAGE StandaloneDeriving #-}
 
 -- Value for MaMa with Int and Bool as basic values
 
@@ -21,9 +22,14 @@ import FPPL.MaMa.Value
 
 -- ----------------------------------------
 
+type MaMa1   = MaMa   Op1 Val1
+type Code1   = Code   Op1
+type MState1 = MState Op1 Val1
+
+-- ----------------------------------------
+
 data Val1 = VInt  ! Int
           | VBool ! Bool
-          deriving (Show)
 
 instance BasicValue Val1 where
   asInt = prism
@@ -42,16 +48,21 @@ instance BasicValue Val1 where
 
 -- ----------------------------------------
 
-data Op1 = Addi | Subi | Muli | Divi
-         | EQi | NEi
-         | LSi | LEi | GEi | GRi
+data Op1 = --binary ops
+           Addi | Subi | Muli | Divi
+         | EQi  | NEi
+         | LSi  | LEi  | GEi  | GRi
+         | And  | Or
+           -- unary ops
          | Neg
-         | And | Or
          | Not
-         deriving (Show)
+         | B2I  | I2B
+           -- conversion of literals
+         | ToInt | ToBool
 
 instance ALU Op1 where
   alu = \case
+    -- binary ops
     Addi -> exAddInt
     Subi -> exSubInt
     Muli -> exMulInt
@@ -62,10 +73,23 @@ instance ALU Op1 where
     LEi  -> exLeInt
     GEi  -> exGeInt
     GRi  -> exGtInt
-    Neg  -> ex1 asInt negate
     And  -> ex2Bool (&&)
     Or   -> ex2Bool (||)
-    Not  -> ex1 asBool not
+
+    -- unary ops
+    Neg  -> ex1  asInt negate
+    Not  -> ex1  asBool not
+    B2I  -> ex1' asBool asInt  fromEnum
+    I2B  -> ex1' asInt  asBool (== 0)
+
+    -- default
+    _    -> exAbort
+
+--  fromLiteral :: Op1 -> MaMa1 ()
+  fromLiteral = \case
+    ToInt  -> pushLitInt
+    ToBool -> pushLitBool
+    _      -> pushLitAbort
 
 -- ----------------------------------------
 
@@ -75,6 +99,8 @@ exec1 = flip execMaMaProg opts
     opts = defaultOptions & mamaTrace .~ True
 
 -- ----------------------------------------
+--
+-- pretty printing and test output
 
 instance Pretty Val1 where
   pretty = \case
@@ -85,10 +111,7 @@ instance Pretty Op1 where
   pretty  = take 8 . (++ replicate 8 ' ') . map toLower . show
   pretty' = reverse . dropWhile isSpace . reverse . pretty
 
--- ----------------------------------------
-
-type MaMa1 = MaMa Op1 Val1
-type Code1 = Code Op1
-type MState1 = MState Op1 Val1
+deriving instance Show Op1
+deriving instance Show Val1
 
 -- ----------------------------------------

@@ -49,6 +49,7 @@ p2 = mkCode
   , Halt
   ]
 
+-- compare and or
 p3 :: Code1
 p3 = mkCode
   [ LoadBool False
@@ -129,5 +130,21 @@ p9 = mkCode
   , Halt
   ]
 
+
+-- conversion of string literals to basic values
+p10 :: Code1
+p10 = mkCode
+  [ LoadLit ToInt "7"
+  , LoadLit ToInt "3"
+  , LoadLit ToInt "3"
+  , LoadLit ToBool "true"
+  , Comp B2I
+  , Comp Addi
+  , Comp Addi
+  , Comp Muli
+  , LoadInt 7
+  , Comp Subi
+  , Halt
+  ]
 
 -- ----------------------------------------
