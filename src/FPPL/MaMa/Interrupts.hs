@@ -10,6 +10,8 @@ where
 
 import FPPL.Prelude
 
+import Text.Pretty
+
 -- ----------------------------------------
 
 infixr 5 +:+
@@ -38,7 +40,7 @@ instance Pretty Interrupt where
   pretty = prettyIR
 
 prettyIR :: Interrupt -> String
-prettyIR = \ case
+prettyIR = \case
       Running           -> ""
       Terminated        -> "Program terminated"
       NullPointer       -> "Null pointer exception"

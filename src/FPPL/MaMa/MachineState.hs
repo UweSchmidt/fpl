@@ -22,6 +22,8 @@ import FPPL.MaMa.SimpleTypes
 import FPPL.MaMa.Stack
 -- import FPPL.MaMa.Value
 
+import Text.Pretty
+
 -- ----------------------------------------
 --
 -- the machine state
@@ -100,13 +102,19 @@ prettyMState s =
   prettyFp (s ^. fp)
   ++
   prettyGp (s ^. gp)
-  ++
-  prettyHeap (s ^. heap)
 -}
+  ++
+  prettyHeap
   ++
   []
   where
-    prettyCode ::  String
+    prettyHeap :: String
+    prettyHeap =
+      (unlines $ header '-' "heap")
+      ++
+      pretty (s ^. heap)
+
+    prettyCode :: String
     prettyCode =
       (unlines $ header '-' "instructions")
       ++
@@ -116,17 +124,15 @@ prettyMState s =
     prettyRegisters =
       (unlines $ header '-' "registers")
       ++
-      unlines
-      [ "pc" `app8` ": " ++ pretty (s ^. pc)
-      , "fp" `app8` ": " ++ pretty (s ^. fp)
-      , "gp" `app8` ": " ++ pretty (s ^. gp)
-      , "ir" `app8` ": " ++ pretty (s ^. interrupt)
-      ]
-
-
--- ----------------------------------------
-
-header :: Char -> String -> [String]
-header c xs = ["", xs, map (const c) xs, ""]
+      ( unlines $
+        map fmt
+        [ ["pc", pretty (s ^. pc)]
+        , ["fp", pretty (s ^. fp)]
+        , ["gp", pretty (s ^. gp)]
+        , ["ir", pretty (s ^. interrupt)]
+        ]
+      )
+      where
+        fmt = fmtRow [("", alignR 6), (": ", alignR 8)]
 
 -- ----------------------------------------

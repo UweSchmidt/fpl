@@ -12,6 +12,8 @@ import FPPL.Prelude
 import FPPL.MaMa.SimpleTypes
 import FPPL.MaMa.Instr
 
+import Text.Pretty
+
 import qualified Data.Vector as V
 
 -- ----------------------------------------
@@ -50,4 +52,5 @@ instance (Pretty op) => Pretty (Code op) where
     where
       is :: [CodeAddr]
       is = map (isoOffset #) [0..]
+
 -- ----------------------------------------

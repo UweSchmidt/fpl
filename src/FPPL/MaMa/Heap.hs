@@ -19,6 +19,8 @@ import FPPL.Prelude
 import FPPL.MaMa.SimpleTypes
 import FPPL.MaMa.Value
 
+import Text.Pretty
+
 import qualified Data.Map as M
 
 -- ----------------------------------------
@@ -93,6 +95,15 @@ instance Show (Heap v) where
   show = pretty
 
 instance {- Pretty v => -} Pretty (Heap v) where
-  pretty _h = "<heap>"
+  pretty h = unlines $
+    [ fmt ["# obj", alignR 8 $ pretty (h ^. theHeapCnt)]
+    , fmt ["# new", alignR 8 $ pretty (h ^. theAlcnt)]
+    , ""
+    ]
+    ++
+    [ fmt [" ", "<not yet impl>"] ] -- TODO
+
+    where
+      fmt = fmtRow [("", alignR 6), (": ", id)]
 
 -- ----------------------------------------

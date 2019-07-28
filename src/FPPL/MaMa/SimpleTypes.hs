@@ -8,6 +8,7 @@ module FPPL.MaMa.SimpleTypes
 where
 
 import FPPL.Prelude
+import Text.Pretty
 
 -- --------------------
 --
@@ -29,6 +30,9 @@ instance AddrArithm Offset where
   incr'     = (+)
   disp'     = (-)
   isoOffset = id
+
+instance Pretty Offset where
+  pretty = show
 
 -- --------------------
 --
@@ -95,33 +99,15 @@ class StackPointer v where
 
 instance Pretty (Addr' a) where
   pretty v@(AD w)
-    | null' v = "  <null>"
-    | otherwise = printf "%8i" $ toInteger w
+    | null' v   = "null"
+    | otherwise = show w
 
 instance Pretty Addr where
-  pretty :: Addr -> String
   pretty v@(Addr w)
-    | null' v = "  <null>"
-    | otherwise = printf "%8i" $ toInteger w
-
-instance Pretty Offset where
-  pretty  = printf "%8i"
-  pretty' = show
+    | null' v   = "null"
+    | otherwise = show w
 
 instance Pretty Bool where
   pretty = map toLower . show
-
--- ----------------------------------------
-
-app' :: Int -> String -> String -> String
-app' n xs ys = xs ++ spc ++ ys
-  where
-    spc = replicate (n - length xs) ' '
-
-app8 :: String -> String -> String
-app8 = app' 8
-
-app4 :: String -> String -> String
-app4 = app' 4
 
 -- ----------------------------------------

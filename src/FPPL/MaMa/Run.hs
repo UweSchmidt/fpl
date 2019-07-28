@@ -20,6 +20,8 @@ import FPPL.MaMa.SimpleTypes
 import FPPL.MaMa.Stack ()
 import FPPL.MaMa.Value
 
+import Text.Pretty
+
 -- ----------------------------------------
 
 execMaMaProg :: (BasicValue v, ALU op, Pretty op)

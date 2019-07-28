@@ -18,10 +18,13 @@ import FPPL.MaMa.SimpleTypes
 import FPPL.MaMa.Stack
 import FPPL.MaMa.Value
 
+import Text.Pretty
+
 import Control.Monad.Except
+import System.IO (hPutStrLn, stderr)
 
 import qualified Data.Monoid (First)
-import System.IO (hPutStrLn, stderr)
+
 
 -- ----------------------------------------
 --

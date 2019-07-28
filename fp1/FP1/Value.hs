@@ -16,6 +16,8 @@ import FPPL.MaMa.Run
 import FPPL.MaMa.SimpleTypes ()
 import FPPL.MaMa.Value
 
+import Text.Pretty
+
 -- ----------------------------------------
 --
 -- 2. simplest basic value: an Int or a Bool
@@ -108,8 +110,7 @@ instance Pretty Val1 where
     VBool b -> pretty b
 
 instance Pretty Op1 where
-  pretty  = take 8 . (++ replicate 8 ' ') . map toLower . show
-  pretty' = reverse . dropWhile isSpace . reverse . pretty
+  pretty  =  map toLower . show
 
 deriving instance Show Op1
 deriving instance Show Val1

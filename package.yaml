@@ -70,6 +70,7 @@ library:
     - FPPL.MaMa.Stack
     - FPPL.MaMa.Value
     - FPPL.Prelude
+    - Text.Pretty
 
   default-extensions:
     - AutoDeriveTypeable

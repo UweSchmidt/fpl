@@ -8,6 +8,8 @@ where
 import FPPL.Prelude
 import FPPL.MaMa.SimpleTypes
 
+import Text.Pretty
+
 -- ----------------------------------------
 
 data Instr' d op = LoadInt  Int
@@ -33,29 +35,42 @@ instance (Pretty d, Pretty op) => Pretty (Instr' d op) where
 
 prettyInstr :: (Pretty d, Pretty op) => Instr' d op -> String
 prettyInstr = \ case
-  LoadInt  i     -> "loadc"   `app8` pretty' i
-  LoadBool b     -> "loadc"   `app8` pretty' b
-  LoadLit op' xs -> "loadc"   `app8` (pretty op' `app4` show xs)
-  MkBasic        -> "mkbasic"
-  GetBasic       -> "getbasic"
-  PushLoc     d  -> "pushloc" `app8` pretty' d
-  PushGlb     d  -> "pushglb" `app8` pretty' d
-  Branch    b d  -> ( if b
-                      then "brtrue"
-                      else "brfalse"
-                    )
-                    `app8` pretty' d
+  LoadInt  i     -> fmt ["loadc", pretty i]
+  LoadBool b     -> fmt ["loadc", pretty b]
+  LoadLit op' xs -> fmt ["loadc", pretty op', show xs]
+  MkBasic        -> fmt ["mkbasic"]
+  GetBasic       -> fmt ["getbasic"]
+  PushLoc     d  -> fmt ["pushloc", pretty d]
+  PushGlb     d  -> fmt ["pushglb", pretty d]
+  Branch    b d  -> fmt [ if b
+                          then "brtrue"
+                          else "brfalse"
+                        , pretty d
+                        ]
 
-  Jump         d -> "jump" `app8` pretty' d
-  Comp       op' -> pretty' op'
-  Halt           -> "halt"
-  Noop           -> "noop"
+  Jump         d -> fmt ["jump", pretty d]
+  Comp       op' -> fmt [pretty op']
+  Halt           -> fmt ["halt"]
+  Noop           -> fmt ["noop"]
+
+  where
+    fmt = fmtRow [("", alignL 8), (" ", alignR 8), (" ", id)]
 
 instance (Pretty op) => Pretty (CodeAddr, Instr op) where
-  pretty (pc, instr) = pretty pc ++ ": " ++ pretty instr ++ target instr
+  pretty (pc, instr) = case instr of
+    Jump     d -> prettyJ d
+    Branch _ d -> prettyJ d
+    _          -> prettyS
     where
-      target = \case
-        Jump d -> "    --> " ++ pretty' (incr' (1 + d) pc)
-        _      -> ""
+        fmt
+          = fmtRow [("", alignR 6), (": ", alignL 18), (" --> ", id)]
+        prettyS
+          =  fmt [prettyPc, pretty instr]
+
+        prettyJ d
+          = fmt [prettyPc, pretty instr, pretty (incr' (1 + d) pc)]
+
+        prettyPc
+          = show $ pc ^. isoOffset
 
 -- ----------------------------------------

@@ -18,7 +18,6 @@ module FPPL.Prelude
          -- classes
        , IsEmpty(..)
        , Empty(..)
-       , Pretty(..)
        , IsString(..)
 
          -- Data.Aeson
@@ -192,18 +191,6 @@ class Empty v where
   null' = (== empty')
 
   -- law:  null' empty' == True
-
--- ----------------------------------------
-
-class Pretty v where
-  pretty  :: v -> String
-
-  -- pretty but without leading whitespace
-  pretty' :: v -> String
-  pretty' = dropWhile isSpace . pretty
-
-  default pretty :: (Show v) => v -> String
-  pretty = show
 
 -- ----------------------------------------
 --
