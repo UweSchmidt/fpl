@@ -6,18 +6,16 @@ import FPL
 import FP1.Value
 
 main :: IO ()
-main = test0
+main = test p0
 
 -- ----------------------------------------
 
 -- it runs (2019-07-26)
 
-test0, test1, test2, test3 :: IO ()
-
-test0 = exec1 p0 >>= print
-test1 = exec1 p1 >>= print
-test2 = exec1 p2 >>= print
-test3 = exec1 p3 >>= print
+test :: Code1 -> IO ()
+test p = do
+  putStr $ unlines (header '=' "program trace")
+  exec1 p >>= putStrLn . pretty
 
 -- ----------------------------------------
 --
@@ -144,6 +142,20 @@ p10 = mkCode
   , Comp Muli
   , LoadInt 7
   , Comp Subi
+  , Halt
+  ]
+
+-- stack dump
+p11 :: Code1
+p11= mkCode
+  [ LoadInt 42
+  , MkBasic
+  , LoadInt 23
+  , MkBasic
+  , PushLoc 0
+  , GetBasic
+  , PushLoc (-2)
+  , GetBasic
   , Halt
   ]
 

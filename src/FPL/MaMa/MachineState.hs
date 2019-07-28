@@ -83,21 +83,21 @@ interrupt k s = (\ n -> s { _interrupt = n}) <$> k (_interrupt s)
 
 -- ----------------------------------------
 
-instance (Pretty op) => Pretty (MState op v) where
+instance (Pretty op, Pretty v) => Pretty (MState op v) where
   pretty = prettyMState
 
-prettyMState :: (Pretty op) => MState op v -> String
+prettyMState :: (Pretty op, Pretty v) => MState op v -> String
 prettyMState s =
-  prettyCode
+  (unlines $ header '=' "machine state")
   ++
   prettyRegisters
+  ++
+  prettyStack
 {-
   ++
   prettyPc (s ^. pc)
   ++
   prettyInterrupt (s ^. interrupt)
-  ++
-  prettyStack (s ^.stack)
   ++
   prettyFp (s ^. fp)
   ++
@@ -105,6 +105,8 @@ prettyMState s =
 -}
   ++
   prettyHeap
+  ++
+  prettyCode
   ++
   []
   where
@@ -116,9 +118,15 @@ prettyMState s =
 
     prettyCode :: String
     prettyCode =
-      (unlines $ header '-' "instructions")
+      (unlines $ header '-' "program code")
       ++
       pretty (s ^. code)
+
+    prettyStack :: String
+    prettyStack =
+      (unlines $ header '-' "stack")
+      ++
+      pretty (s ^. stack)
 
     prettyRegisters :: String
     prettyRegisters =

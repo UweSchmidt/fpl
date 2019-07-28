@@ -1,3 +1,4 @@
+{-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE TypeFamilies #-}
 
 module FPL.MaMa.Stack
@@ -14,6 +15,8 @@ where
 
 import FPL.Prelude
 import FPL.MaMa.SimpleTypes
+
+import Text.Pretty
 
 import qualified Data.Sequence as S
 
@@ -63,8 +66,8 @@ offset2ix i (SK v)
     l' = S.length v - 1
     i' = l' + i
 
-values :: Lens' (Stack v) (Seq (StackValue v))
-values k (SK v) = (\ n -> SK n) <$> k v
+values :: Iso' (Stack v) (Seq (StackValue v))
+values = iso _sk SK
 
 -- --------------------
 
@@ -106,5 +109,23 @@ asSA = prism
           SA y -> Right y
           x    -> Left  x
       )
+
+-- ----------------------------------------
+--
+-- pretty printing
+
+instance (Pretty v) => Pretty (Stack v) where
+  pretty s = unlines $
+    zipWith pretty' offsets $ s ^. values . isoSeqList . to reverse
+    where
+      offsets =
+        map negate [(0 :: Offset)..]
+
+      pretty' d v =
+        fmtRow [("", alignR 6), (": ", alignR 8)] [pretty d, pretty v]
+
+instance (Pretty v) => Pretty (StackValue v) where
+  pretty (SB v) = pretty v
+  pretty (SA a) = "<" ++ pretty a ++ ">"
 
 -- ----------------------------------------

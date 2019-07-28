@@ -43,6 +43,6 @@ fmtRow _                []  = []
 -- ----------------------------------------
 
 header :: Char -> String -> [String]
-header c xs = ["", xs, map (const c) xs, ""]
+header c xs = ["", xs, map (const c) xs]
 
 -- ----------------------------------------
