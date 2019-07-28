@@ -91,19 +91,22 @@ theHeapCnt = theHeap . to M.size
 
 -- ----------------------------------------
 
-instance Show (Heap v) where
+instance Pretty v => Show (Heap v) where
   show = pretty
 
-instance {- Pretty v => -} Pretty (Heap v) where
+instance Pretty v => Pretty (Heap v) where
   pretty h = unlines $
     [ fmt ["# obj", alignR 8 $ pretty (h ^. theHeapCnt)]
     , fmt ["# new", alignR 8 $ pretty (h ^. theAlcnt)]
     , ""
     ]
     ++
-    [ fmt [" ", "<not yet impl>"] ] -- TODO
+    (map (uncurry pretty') . M.toList $ (h ^. theHeap))
 
     where
+      pretty' adr val =
+        fmt [pretty adr, pretty val]
+
       fmt = fmtRow [("", alignR 6), (": ", id)]
 
 -- ----------------------------------------

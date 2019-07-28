@@ -23,6 +23,8 @@ where
 import FPL.Prelude
 import FPL.MaMa.SimpleTypes
 
+import Text.Pretty
+
 import qualified Data.Vector as V
 
 -- --------------------
@@ -170,3 +172,23 @@ instance ArgsPointer (Value v) where
   argp k v                    = const v                   <$> k empty'
 
 -- ----------------------------------------
+--
+-- pretty printing
+
+instance (Pretty v) => Pretty (Value v) where
+  pretty (B val) = "B " ++ pretty val
+  pretty (F fct) = pretty fct
+  pretty (C cls) = pretty cls
+  pretty (V vec) = pretty vec
+
+instance Pretty Function where
+  pretty (FU cp' ap' gp') =
+    unwords ["F", pretty cp', pretty ap', pretty gp']
+
+instance Pretty Closure where
+  pretty (CL cp' gp') =
+    unwords ["C", pretty cp', pretty gp']
+
+instance Pretty Vec where
+  pretty v =
+    "V [" ++ intercalate "," (map pretty (v ^. theVector . isoVectorList)) ++ "]"
