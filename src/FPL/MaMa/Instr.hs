@@ -2,11 +2,11 @@
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE LambdaCase #-}
 
-module FPPL.MaMa.Instr
+module FPL.MaMa.Instr
 where
 
-import FPPL.Prelude
-import FPPL.MaMa.SimpleTypes
+import FPL.Prelude
+import FPL.MaMa.SimpleTypes
 
 import Text.Pretty
 

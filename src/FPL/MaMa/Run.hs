@@ -3,22 +3,22 @@
 
 -- the MaMa machine state
 
-module FPPL.MaMa.Run
+module FPL.MaMa.Run
 where
 
-import FPPL.Prelude
-import FPPL.MaMa.ALU
-import FPPL.MaMa.Code
-import FPPL.MaMa.Heap ()
-import FPPL.MaMa.Instr
-import FPPL.MaMa.Interrupts
-import FPPL.MaMa.MachineState
-import FPPL.MaMa.MicroInstructions
-import FPPL.MaMa.Monad
-import FPPL.MaMa.Options
-import FPPL.MaMa.SimpleTypes
-import FPPL.MaMa.Stack ()
-import FPPL.MaMa.Value
+import FPL.Prelude
+import FPL.MaMa.ALU
+import FPL.MaMa.Code
+import FPL.MaMa.Heap ()
+import FPL.MaMa.Instr
+import FPL.MaMa.Interrupts
+import FPL.MaMa.MachineState
+import FPL.MaMa.MicroInstructions
+import FPL.MaMa.Monad
+import FPL.MaMa.Options
+import FPL.MaMa.SimpleTypes
+import FPL.MaMa.Stack ()
+import FPL.MaMa.Value
 
 import Text.Pretty
 

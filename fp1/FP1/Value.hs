@@ -6,15 +6,15 @@
 module FP1.Value
 where
 
-import FPPL.Prelude
-import FPPL.MaMa.ALU
-import FPPL.MaMa.Code
-import FPPL.MaMa.MachineState
-import FPPL.MaMa.Monad
-import FPPL.MaMa.Options
-import FPPL.MaMa.Run
-import FPPL.MaMa.SimpleTypes ()
-import FPPL.MaMa.Value
+import FPL.Prelude
+import FPL.MaMa.ALU
+import FPL.MaMa.Code
+import FPL.MaMa.MachineState
+import FPL.MaMa.Monad
+import FPL.MaMa.Options
+import FPL.MaMa.Run
+import FPL.MaMa.SimpleTypes ()
+import FPL.MaMa.Value
 
 import Text.Pretty
 

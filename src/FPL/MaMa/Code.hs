@@ -1,6 +1,6 @@
 {-# LANGUAGE TypeFamilies #-}
 
-module FPPL.MaMa.Code
+module FPL.MaMa.Code
   ( Code
   , theCS
   , theInstrList
@@ -8,9 +8,9 @@ module FPPL.MaMa.Code
   )
 where
 
-import FPPL.Prelude
-import FPPL.MaMa.SimpleTypes
-import FPPL.MaMa.Instr
+import FPL.Prelude
+import FPL.MaMa.SimpleTypes
+import FPL.MaMa.Instr
 
 import Text.Pretty
 

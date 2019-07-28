@@ -9,8 +9,8 @@
 module FP0.Value
 where
 
-import FPPL.Prelude
-import FPPL.MaMa.Value
+import FPL.Prelude
+import FPL.MaMa.Value
 
 -- ----------------------------------------
 --

@@ -1,6 +1,6 @@
 {-# LANGUAGE TypeFamilies #-}
 
-module FPPL.MaMa.Stack
+module FPL.MaMa.Stack
   ( Stack
   , StackValue
   , push
@@ -12,8 +12,8 @@ module FPPL.MaMa.Stack
   )
 where
 
-import FPPL.Prelude
-import FPPL.MaMa.SimpleTypes
+import FPL.Prelude
+import FPL.MaMa.SimpleTypes
 
 import qualified Data.Sequence as S
 

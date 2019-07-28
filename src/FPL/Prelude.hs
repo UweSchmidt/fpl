@@ -4,7 +4,7 @@
 {-# LANGUAGE DefaultSignatures #-}
 
 
-module FPPL.Prelude
+module FPL.Prelude
        ( -- basic types
          ByteString
        , LazyByteString

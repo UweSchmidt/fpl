@@ -3,7 +3,7 @@
 
 -- the MaMa machine state
 
-module FPPL.MaMa.MachineState
+module FPL.MaMa.MachineState
   ( MState
   , code
   , stack
@@ -14,13 +14,13 @@ module FPPL.MaMa.MachineState
   )
 where
 
-import FPPL.Prelude
-import FPPL.MaMa.Code
-import FPPL.MaMa.Heap
-import FPPL.MaMa.Interrupts
-import FPPL.MaMa.SimpleTypes
-import FPPL.MaMa.Stack
--- import FPPL.MaMa.Value
+import FPL.Prelude
+import FPL.MaMa.Code
+import FPL.MaMa.Heap
+import FPL.MaMa.Interrupts
+import FPL.MaMa.SimpleTypes
+import FPL.MaMa.Stack
+-- import FPL.MaMa.Value
 
 import Text.Pretty
 

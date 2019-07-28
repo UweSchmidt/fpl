@@ -3,7 +3,7 @@
 
 -- the MaMa heap
 
-module FPPL.MaMa.Heap
+module FPL.MaMa.Heap
   ( Heap
   , emptyHeap
   , alloc
@@ -15,9 +15,9 @@ module FPPL.MaMa.Heap
   )
 where
 
-import FPPL.Prelude
-import FPPL.MaMa.SimpleTypes
-import FPPL.MaMa.Value
+import FPL.Prelude
+import FPL.MaMa.SimpleTypes
+import FPL.MaMa.Value
 
 import Text.Pretty
 

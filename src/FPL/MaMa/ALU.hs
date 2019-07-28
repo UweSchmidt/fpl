@@ -3,15 +3,15 @@
 
 -- the MaMa ALU (Arithmetic Logic Unit)
 
-module FPPL.MaMa.ALU
+module FPL.MaMa.ALU
 where
 
-import FPPL.Prelude
-import FPPL.MaMa.Interrupts
-import FPPL.MaMa.MicroInstructions
-import FPPL.MaMa.Monad
-import FPPL.MaMa.SimpleTypes ()
-import FPPL.MaMa.Value
+import FPL.Prelude
+import FPL.MaMa.Interrupts
+import FPL.MaMa.MicroInstructions
+import FPL.MaMa.Monad
+import FPL.MaMa.SimpleTypes ()
+import FPL.MaMa.Value
 
 -- ----------------------------------------
 --

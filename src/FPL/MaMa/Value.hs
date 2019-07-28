@@ -3,7 +3,7 @@
 
 -- machine types for virtual MaMa machine
 
-module FPPL.MaMa.Value
+module FPL.MaMa.Value
   ( Value
   , Closure
   , Function
@@ -20,8 +20,8 @@ module FPPL.MaMa.Value
   )
 where
 
-import FPPL.Prelude
-import FPPL.MaMa.SimpleTypes
+import FPL.Prelude
+import FPL.MaMa.SimpleTypes
 
 import qualified Data.Vector as V
 

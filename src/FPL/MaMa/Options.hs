@@ -3,14 +3,14 @@
 
 -- the MaMa machine state
 
-module FPPL.MaMa.Options
+module FPL.MaMa.Options
   ( Options
   , defaultOptions
   , mamaTrace
   )
 where
 
-import FPPL.Prelude
+import FPL.Prelude
 
 -- ----------------------------------------
 

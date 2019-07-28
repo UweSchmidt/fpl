@@ -2,7 +2,7 @@ module Main
   -- (main)
 where
 
-import FPPL
+import FPL
 import FP1.Value
 
 main :: IO ()

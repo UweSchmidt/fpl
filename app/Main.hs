@@ -2,7 +2,7 @@ module Main
   (main)
 where
 
-import FPPL ()
+import FPL ()
 import Options.Applicative ()
 
 main :: IO ()

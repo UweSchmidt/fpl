@@ -4,10 +4,10 @@
 
 -- simple machine types for virtual MaMa machine
 
-module FPPL.MaMa.SimpleTypes
+module FPL.MaMa.SimpleTypes
 where
 
-import FPPL.Prelude
+import FPL.Prelude
 import Text.Pretty
 
 -- --------------------

@@ -1,3 +1,3 @@
-# Changelog for fppl
+# Changelog for fpl
 
 ## Unreleased changes

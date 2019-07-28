@@ -1,6 +1,6 @@
-name:                fppl
+name:                fpl
 version:             0.1.0.0
-github:              UweSchmidt/fppl
+github:              UweSchmidt/fpl
 license:             BSD3
 author:              Uwe Schmidt
 maintainer:          uwe@fh-wedel.de
@@ -18,7 +18,7 @@ extra-source-files:
 # complications of embedding Haddock markup inside cabal files, it is
 # common to point users to the README.md file.
 
-description:         Please see the README on Github at <https://github.com/UweSchmidt/fppl#readme>
+description:         Please see the README on Github at <https://github.com/UweSchmidt/fpl#readme>
 
 dependencies:
 - base >= 4.11 && < 10
@@ -54,22 +54,22 @@ ghc-options:
 library:
   source-dirs: src
   exposed-modules:
-    - FPPL
-    - FPPL.MaMa
-    - FPPL.MaMa.ALU
-    - FPPL.MaMa.Code
-    - FPPL.MaMa.Heap
-    - FPPL.MaMa.Instr
-    - FPPL.MaMa.Interrupts
-    - FPPL.MaMa.MachineState
-    - FPPL.MaMa.MicroInstructions
-    - FPPL.MaMa.Monad
-    - FPPL.MaMa.Options
-    - FPPL.MaMa.Run
-    - FPPL.MaMa.SimpleTypes
-    - FPPL.MaMa.Stack
-    - FPPL.MaMa.Value
-    - FPPL.Prelude
+    - FPL
+    - FPL.MaMa
+    - FPL.MaMa.ALU
+    - FPL.MaMa.Code
+    - FPL.MaMa.Heap
+    - FPL.MaMa.Instr
+    - FPL.MaMa.Interrupts
+    - FPL.MaMa.MachineState
+    - FPL.MaMa.MicroInstructions
+    - FPL.MaMa.Monad
+    - FPL.MaMa.Options
+    - FPL.MaMa.Run
+    - FPL.MaMa.SimpleTypes
+    - FPL.MaMa.Stack
+    - FPL.MaMa.Value
+    - FPL.Prelude
     - Text.Pretty
 
   default-extensions:
@@ -114,12 +114,12 @@ library:
     - ViewPatterns
 
 executables:
-  fpplc:
+  fplc:
     main:                Main.hs
     source-dirs:         app
 
     dependencies:
-    - fppl
+    - fpl
     - optparse-applicative
 
     ghc-options:
@@ -134,7 +134,7 @@ executables:
     - FP0.Value
 
     dependencies:
-    - fppl
+    - fpl
 
     ghc-options:
     - -threaded
@@ -148,7 +148,7 @@ executables:
     - FP1.Value
 
     dependencies:
-    - fppl
+    - fpl
 
     ghc-options:
     - -threaded
@@ -156,11 +156,11 @@ executables:
     - -with-rtsopts=-N
 
 tests:
-  fppl-test:
+  fpl-test:
     main:                Spec.hs
     source-dirs:         test
     dependencies:
-    - fppl
+    - fpl
     - hspec
 
     ghc-options:

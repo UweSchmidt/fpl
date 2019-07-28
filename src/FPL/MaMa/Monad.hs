@@ -3,15 +3,15 @@
 
 -- the MaMa monad
 
-module FPPL.MaMa.Monad
+module FPL.MaMa.Monad
   ( MaMa
   , runMaMa
   )
 where
 
-import FPPL.Prelude ()
-import FPPL.MaMa.MachineState
-import FPPL.MaMa.Options
+import FPL.Prelude ()
+import FPL.MaMa.MachineState
+import FPL.MaMa.Options
 
 
 import Control.Monad.Except

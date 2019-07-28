@@ -2,13 +2,13 @@
 
 -- interrupts (errors)
 
-module FPPL.MaMa.Interrupts
+module FPL.MaMa.Interrupts
   ( Interrupt(..)
   , prettyIR
   )
 where
 
-import FPPL.Prelude
+import FPL.Prelude
 
 import Text.Pretty
 

@@ -2,11 +2,11 @@ module Main
   -- (main)
 where
 
-import qualified FPPL
+import qualified FPL
 import           FP0.Value
 
-type Value = FPPL.Value BV0
-type Heap  = FPPL.Heap  BV0
+type Value = FPL.Value BV0
+type Heap  = FPL.Heap  BV0
 
 main :: IO ()
 main = do
