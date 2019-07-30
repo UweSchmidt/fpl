@@ -56,6 +56,8 @@ library:
   source-dirs: src
   exposed-modules:
     - FPL
+    - FPL.Core
+    - FPL.Core.Code
     - FPL.MaMa
     - FPL.MaMa.ALU
     - FPL.MaMa.Code

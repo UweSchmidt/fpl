@@ -1,5 +1,6 @@
 module FPL
   ( module FPL.Prelude
+  , module FPL.Core
   , module FPL.MaMa
   , module Text.Pretty
   )
@@ -7,5 +8,6 @@ module FPL
 where
 
 import FPL.Prelude
+import FPL.Core
 import FPL.MaMa
 import Text.Pretty
