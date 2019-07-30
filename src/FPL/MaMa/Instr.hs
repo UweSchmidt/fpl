@@ -28,6 +28,23 @@ data Instr' d op = LoadInt  Int
 
 type Instr op = Instr' Offset op
 
+instance Bifunctor Instr' where
+  bimap :: (d -> d1)   -> (op -> op1)
+        -> Instr' d op -> Instr' d1 op1
+  bimap f g = \case
+    LoadInt i       -> LoadInt i
+    LoadBool b      -> LoadBool b
+    LoadLit  op' xs -> LoadLit (g op') xs
+    MkBasic         -> MkBasic
+    GetBasic        -> GetBasic
+    PushLoc o       -> PushLoc o
+    PushGlb o       -> PushGlb o
+    Jump d          -> Jump (f d)
+    Branch c d      -> Branch c (f d)
+    Comp op'        -> Comp (g op')
+    Halt            -> Halt
+    Noop            -> Noop
+
 -- --------------------
 
 instance (Pretty d, Pretty op) => Pretty (Instr' d op) where

@@ -24,6 +24,7 @@ dependencies:
 - base >= 4.11 && < 10
 - aeson                >= 0.8
 - aeson-pretty         >= 0.8
+- bifunctors           >= 5
 - bytestring           >= 0.9
 - containers           >= 0.4
 - directory            >= 1.1

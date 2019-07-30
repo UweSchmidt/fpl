@@ -7,14 +7,7 @@ module FP1.Value
 where
 
 import FPL.Prelude
-import FPL.MaMa.ALU
-import FPL.MaMa.Code
-import FPL.MaMa.MachineState
-import FPL.MaMa.Monad
-import FPL.MaMa.Options
-import FPL.MaMa.Run
-import FPL.MaMa.SimpleTypes ()
-import FPL.MaMa.Value
+import FPL.MaMa
 
 import Text.Pretty
 
@@ -25,6 +18,7 @@ import Text.Pretty
 -- ----------------------------------------
 
 type MaMa1   = MaMa   Op1 Val1
+type Instr1  = Instr  Op1
 type Code1   = Code   Op1
 type MState1 = MState Op1 Val1
 
