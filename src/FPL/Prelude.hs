@@ -95,6 +95,8 @@ module FPL.Prelude
        , isA
        , intBool
 
+       , locally  -- will go with lens >= 4.17.1
+
          -- utilities
        , (.||.)
        , partitionBy
@@ -113,6 +115,7 @@ import           Control.Applicative
 import           Control.Arrow
 import           Control.Lens
 import           Control.Monad
+import qualified Control.Monad.Reader.Class as Reader
 import           Data.Aeson (ToJSON(..), FromJSON(..))
 import qualified Data.Aeson as J
 import qualified Data.Aeson.Types as J
@@ -485,5 +488,14 @@ unlessM b c = do
   b' <- b
   unless b' c
 {-# INLINE unlessM #-}
+
+-- ----------------------------------------
+
+-- wiil go with lens-1.17.1
+
+locally :: Reader.MonadReader s m =>
+           ASetter s s a1 b -> (a1 -> b) -> m a2 -> m a2
+locally l f = Reader.local (over l f)
+{-# INLINE locally #-}
 
 -- ----------------------------------------

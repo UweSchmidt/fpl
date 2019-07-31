@@ -12,11 +12,11 @@ import FPL.Prelude ()
 
 -- ----------------------------------------
 --
--- b:  defining occurence with type
--- Id: applied occurence
+-- b:     defining occurence with type
+-- Ident: applied occurence
 
 data Expr b
-  = Var   Id
+  = Var   Ident
   | Lit   Type Literal
   | App   (Expr b)  (Args b)
   | Lam   (Pars b) (Expr b)
@@ -25,7 +25,7 @@ data Expr b
 --  | Case  (Expr b) b Type [Alt b]     -- not yet implemented
   deriving (Show)
 
-type Id = String
+type Ident = String
 
 data Literal
   = LitInt  Int

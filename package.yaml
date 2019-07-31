@@ -58,6 +58,10 @@ library:
     - FPL
     - FPL.Core
     - FPL.Core.AbstractSyntax
+    - FPL.Core.CodeGenBasic
+    - FPL.Core.CompEnv
+    - FPL.Core.CompMonad
+    - FPL.Core.CompState
     - FPL.Core.MaMaCode
     - FPL.MaMa
     - FPL.MaMa.ALU
