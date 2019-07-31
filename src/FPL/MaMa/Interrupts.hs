@@ -3,9 +3,7 @@
 -- interrupts (errors)
 
 module FPL.MaMa.Interrupts
-  ( Interrupt(..)
-  , prettyIR
-  )
+  ( Interrupt(..) )
 where
 
 import FPL.Prelude

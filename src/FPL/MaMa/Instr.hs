@@ -4,6 +4,9 @@
 {-# LANGUAGE TypeFamilies #-}
 
 module FPL.MaMa.Instr
+  ( Instr'(..)
+  , Instr
+  )
 where
 
 import FPL.Prelude

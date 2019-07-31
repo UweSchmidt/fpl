@@ -12,6 +12,7 @@ module FPL.MaMa.Value
   , CodePointer(..)
   , GlobalPointer(..)
   , ArgsPointer(..)
+
   , mkVec
   , asB
   , asC

@@ -4,6 +4,7 @@
 -- the MaMa ALU (Arithmetic Logic Unit)
 
 module FPL.MaMa.ALU
+ ( module FPL.MaMa.ALU )
 where
 
 import FPL.Prelude

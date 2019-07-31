@@ -4,6 +4,11 @@
 -- the MaMa machine state
 
 module FPL.MaMa.Run
+  ( execMaMaProg
+  , execCode
+  , execInstr
+  , evalInstr
+  )
 where
 
 import FPL.Prelude

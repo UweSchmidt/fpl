@@ -1,4 +1,8 @@
 module FPL.Core.CompMonad
+  ( Comp
+  , runComp
+  , issue
+  )
 where
 
 import FPL.Prelude

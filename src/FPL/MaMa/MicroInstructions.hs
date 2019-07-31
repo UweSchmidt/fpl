@@ -4,6 +4,38 @@
 -- the MaMa micro instrucctions
 
 module FPL.MaMa.MicroInstructions
+  ( getInstr
+  , ixS
+  , popS
+  , popBasic
+  , popBV
+  , popAddr
+  , pushS
+  , pushBasic
+  , pushAddr
+  , allocB
+  , allocC
+  , allocF
+  , allocV
+  , deref
+  , derefBasic
+  , ixG
+  , getCode
+  , getStack
+  , check
+  , checkBasic
+  , checkAddr
+  , checkVec
+  , checkVecIx
+  , checkCode
+  , checkStack
+  , checkPrim
+  , checkInt
+  , checkBool
+  , checkHeapAccess
+  , abort
+  , traceInstr
+  )
 where
 
 import FPL.Prelude
@@ -211,8 +243,6 @@ checkBool = check  (IllegalArgument "Bool value expected")
 
 checkHeapAccess :: Maybe a -> MaMa op v a
 checkHeapAccess = check IllegalHeapAddr
-
-
 
 {-# INLINE checkBasic #-}
 {-# INLINE checkAddr #-}

@@ -5,6 +5,7 @@
 -- simple machine types for virtual MaMa machine
 
 module FPL.MaMa.SimpleTypes
+  ( module FPL.MaMa.SimpleTypes )
 where
 
 import FPL.Prelude
