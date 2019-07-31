@@ -57,7 +57,8 @@ library:
   exposed-modules:
     - FPL
     - FPL.Core
-    - FPL.Core.Code
+    - FPL.Core.AbstractSyntax
+    - FPL.Core.MaMaCode
     - FPL.MaMa
     - FPL.MaMa.ALU
     - FPL.MaMa.Code

@@ -1,6 +1,6 @@
 module FPL.Core
-  ( module FPL.Core.Code
+  ( module FPL.Core.MaMaCode
   )
 where
 
-import FPL.Core.Code
+import FPL.Core.MaMaCode
