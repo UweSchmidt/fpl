@@ -7,7 +7,7 @@ where
 
 import FPL.Prelude
 import FPL.MaMa.SimpleTypes
-import FPL.Core.Code
+import FPL.Core.MaMaCode
 
 import Control.Monad.RWS.Strict
 
