@@ -82,6 +82,8 @@ interrupt :: Lens' (MState op v) Interrupt
 interrupt k s = (\ n -> s { _interrupt = n}) <$> k (_interrupt s)
 
 -- ----------------------------------------
+--
+-- the boring pretty printing
 
 instance (Pretty op, Pretty v) => Pretty (MState op v) where
   pretty = prettyMState
@@ -93,16 +95,6 @@ prettyMState s =
   prettyRegisters
   ++
   prettyStack
-{-
-  ++
-  prettyPc (s ^. pc)
-  ++
-  prettyInterrupt (s ^. interrupt)
-  ++
-  prettyFp (s ^. fp)
-  ++
-  prettyGp (s ^. gp)
--}
   ++
   prettyHeap
   ++

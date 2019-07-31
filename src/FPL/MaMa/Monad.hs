@@ -13,10 +13,9 @@ import FPL.Prelude ()
 import FPL.MaMa.MachineState
 import FPL.MaMa.Options
 
-
 import Control.Monad.Except
 import Control.Monad.Reader
-import Control.Monad.State
+import Control.Monad.State.Strict
 
 -- ----------------------------------------
 --

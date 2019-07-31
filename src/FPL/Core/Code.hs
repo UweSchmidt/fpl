@@ -6,6 +6,8 @@ module FPL.Core.Code
   ( ACode
   , AInstr
   , Label
+  , instrSeq
+  , labMap
   , assemble
   )
 where
@@ -22,14 +24,20 @@ import Text.Pretty
 
 -- ----------------------------------------
 
-type AInstr = Instr' Label
+type AInstr    op = Instr' Label op
+type AInstrSeq op = Seq (AInstr op)
 
-newtype Label = L String
-  deriving (Eq, Ord, Show)
+type LabMap       = Map Label Offset
+
+newtype Label     = L { _l :: String}
+                    deriving (Eq, Ord, Show)
+
+instance IsoString Label where
+  isoString = iso _l L
 
 data ACode op
-  = AC { _instrSeq :: ! (Seq (AInstr op))
-       , _labMap   :: ! (Map Label Offset)
+  = AC { _instrSeq :: ! (AInstrSeq op)
+       , _labMap   :: ! LabMap
        }
     deriving (Show)
 
@@ -43,14 +51,24 @@ instance Semigroup (ACode op) where
 instance Monoid (ACode op) where
   mempty = AC mempty mempty
 
+instance Empty (ACode op) where
+  empty' = mempty
+  null' (AC is lm) = L.null is && M.null lm
+
+instrSeq :: Lens' (ACode op) (AInstrSeq op)
+instrSeq k s = (\ n -> s { _instrSeq = n}) <$> k (_instrSeq s)
+
+labMap :: Lens' (ACode op) LabMap
+labMap k s = (\ n -> s { _labMap = n}) <$> k (_labMap s)
+
 -- --------------------
 --
 -- resolve all labels by code address or distances
 -- and deliver final code
 
 assemble :: ACode op -> Code op
-assemble (AC instrSeq labMap)
-  = mkCode $ L.foldrWithIndex ass [] instrSeq
+assemble (AC instrSeq' labMap')
+  = mkCode $ L.foldrWithIndex ass [] instrSeq'
   where
     ass ix' instr rs = f instr : rs
       where
@@ -60,7 +78,7 @@ assemble (AC instrSeq labMap)
         f instr'        = bimap (const ix') id instr'
 
         displ lab =
-          maybe maxBound (\ t -> t - (ix' + 1)) $ M.lookup lab labMap
+          maybe maxBound (\ t -> t - (ix' + 1)) $ M.lookup lab labMap'
 
 -- ----------------------------------------
 --
@@ -112,6 +130,9 @@ instance Pretty Label where
 
 -- ----------------------------------------
 {-
+
+-- a small text for pretty and assemble
+
 type Op1 = Bool
 type AInstr1 = AInstr Op1
 
