@@ -1,18 +1,16 @@
+{-# LANGUAGE TypeFamilies #-}
 -- {-# LANGUAGE FlexibleInstances #-}
 -- {-# LANGUAGE TypeFamilies #-}
 -- {-# LANGUAGE LambdaCase #-}
 
 module FPL.Core.CompEnv
   ( CompEnv
-  , Ident
-  , VarDescr
   , CompOptions
 
   , compEnv0
 
   , idMap
-  , insVarDescr
-  , vType
+  , insVar
 
   , stackLevel
   , incrStackLevel
@@ -36,7 +34,7 @@ import qualified Data.Map as M
 -- ----------------------------------------
 
 data CompEnv
-  = Env { _idMap      :: Map Ident VarDescr
+  = Env { _idMap      :: Map VarName Var
         , _stackLevel :: Offset
         , _compOpts   :: CompOptions
         }
@@ -49,7 +47,7 @@ compEnv0 opts
         , _compOpts   = opts
         }
 
-idMap :: Lens' CompEnv (Map Ident VarDescr)
+idMap :: Lens' CompEnv (Map VarName Var)
 idMap k s = (\ n -> s { _idMap = n}) <$> k (_idMap s)
 
 stackLevel :: Lens' CompEnv Offset
@@ -61,18 +59,16 @@ compOpts k s = (\ n -> s { _compOpts = n}) <$> k (_compOpts s)
 incrStackLevel :: CompEnv -> CompEnv
 incrStackLevel env = env & stackLevel %~ (+ 1)
 
-insVarDescr :: Ident -> VarDescr -> CompEnv -> CompEnv
-insVarDescr n d env = env & idMap %~ M.insert n d
+insVar :: Var -> CompEnv -> CompEnv
+insVar v env = env & at (v ^. varName) .~ Just v
 
--- --------------------
+type instance Index   CompEnv = VarName
+type instance IxValue CompEnv = Var
 
-data VarDescr
-  = VD { _vType :: Type
-       }
-  deriving (Show)
+instance Ixed CompEnv
 
-vType :: Lens' VarDescr Type
-vType k s = (\ n -> s { _vType = n}) <$> k (_vType s)
+instance At CompEnv where
+  at i = idMap . at i
 
 -- --------------------
 

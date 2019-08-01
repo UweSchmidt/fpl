@@ -10,33 +10,29 @@ module FPL.Core.CodeGenBasic
   , inNewCodeBlock
 
   , withStackLevel'1
-  , withId
-  , withIds
+  , withVar
+  , withVars
   )
 where
 
 import FPL.Prelude
+import FPL.Core.AbstractSyntax
 import FPL.Core.CompEnv
 import FPL.Core.CompMonad
 import FPL.Core.CompState
 import FPL.Core.MaMaCode
-
-import qualified Data.Sequence as L (length, singleton)
-import qualified Data.Map      as M
-
--- import Text.Pretty
 
 -- ----------------------------------------
 --
 -- basic code gen actions
 
 gen :: AInstr op -> Comp op ()
-gen instr
-  = codeActive . instrSeq %= (<> L.singleton instr)
+gen i
+  = codeActive %= addAInstr i
 
 lab :: Label -> Comp op ()
 lab l
-  = do pos <- uses (codeActive . instrSeq) L.length
+  = do pos <- uses codeActive lenACode
        codeActive . labMap . at l .= Just pos
 
 newLab :: Comp op Label
@@ -83,14 +79,14 @@ withStackLevel'1 :: Comp op a -> Comp op a
 withStackLevel'1 comp
   = locally stackLevel (+ 1) comp
 
-withId :: Ident -> VarDescr -> Comp op a -> Comp op a
-withId i d = withIds $ [(i, d)]
+withVar :: Var -> Comp op a -> Comp op a
+withVar v = locally id (insVar v)
 
-withIds :: [(Ident, VarDescr)] -> Comp op a -> Comp op a
-withIds ids comp
-  = locally idMap extIdMap comp
+withVars :: [Var] -> Comp op a -> Comp op a
+withVars vars
+  = locally id extIdMap
   where
-    extIdMap idm
-      = foldl (\ res (i', d') -> M.insert i' d' res) idm ids
+    extIdMap env
+      = foldl (flip insVar) env vars
 
 -- ----------------------------------------

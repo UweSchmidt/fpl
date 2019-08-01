@@ -131,7 +131,7 @@ import           Data.List
 import           Data.Map.Strict (Map)
 import qualified Data.Map.Strict as M
 import           Data.Maybe
-import           Data.Semigroup hiding (option)
+import           Data.Semigroup hiding (Arg, option)
 import           Data.Set (Set)
 import qualified Data.Set as S
 import           Data.Sequence(Seq)

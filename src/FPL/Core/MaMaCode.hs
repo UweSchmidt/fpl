@@ -8,6 +8,8 @@ module FPL.Core.MaMaCode
   , Label
   , instrSeq
   , labMap
+  , lenACode
+  , addAInstr
   , assemble
   )
 where
@@ -60,6 +62,12 @@ instrSeq k s = (\ n -> s { _instrSeq = n}) <$> k (_instrSeq s)
 
 labMap :: Lens' (ACode op) LabMap
 labMap k s = (\ n -> s { _labMap = n}) <$> k (_labMap s)
+
+lenACode :: ACode op -> Int
+lenACode cs = L.length (cs ^. instrSeq)
+
+addAInstr :: AInstr op -> ACode op -> ACode op
+addAInstr i c = c & instrSeq %~ (<> L.singleton i)
 
 -- --------------------
 --
