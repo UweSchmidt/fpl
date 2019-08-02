@@ -17,14 +17,17 @@ import FPL.Prelude
 -- b:     defining occurence with type
 -- Ident: applied occurence
 
+type CoreExpr = Expr Var
+
 data Expr b
-  = Var   Var
+  = Var   b                             -- ghc: Var Var (???)
   | Lit   Literal
   | App   (Expr b)  (Arg b)
   | Lam   b (Expr b)
   | Let   (Bind b)  (Expr b)
   | If    (Expr b)  (Expr b) (Expr b)
 --  | Case  (Expr b) b Type [Alt b]     -- not yet implemented
+--  | Type Type                         -- system FC
 
 data Var
   = Id { _varName    :: VarName
@@ -33,6 +36,7 @@ data Var
        , _varDetails :: VarDetails
        , _varInfo    :: VarInfo
        }
+-- | TyVar ....
 
 data VarScope
   = GlobalVar
@@ -73,17 +77,25 @@ data Bind b
   | Rec [(b, (Expr b))]
 
 data Type
-  = TyBasic TypeName
+  = TyBasic BasicName
   | TyFct Type Type
 --  | TyData TypeName [DataCon]   -- data not yet implemented
 
 -- data DataCon
 --  = DataCon DataConName [Type]
 
-type Name        = String
+type BasicName  = String
+
+data Name
+  = Name { _name      :: BasicName
+         , _nameSpace :: NameSpace
+         }
+
+data NameSpace   = VarNS | DataConNS -- no type variable yet | TypeNS | ...
+
 type VarName     = Name
-type TypeName    = Name
-type DataConName = Name
+-- type TypeName    = Name
+-- type DataConName = Name
 
 -- ----------------------------------------
 
@@ -91,6 +103,10 @@ deriving instance Functor Expr
 deriving instance Functor Bind
 
 deriving instance Eq Type
+deriving instance Eq Name
+deriving instance Ord Name
+deriving instance Eq NameSpace
+deriving instance Ord NameSpace
 
 -- ----------------------------------------
 --
@@ -191,7 +207,7 @@ tyBool = prism'
         _              -> Nothing
     )
 
-tyBasic :: Prism' Type TypeName
+tyBasic :: Prism' Type BasicName
 tyBasic = prism
       TyBasic
       (\case
@@ -215,6 +231,38 @@ boolType = tyBool # ()
 
 -- ----------------------------------------
 --
+-- optics and constructors for names
+
+name :: Lens' Name BasicName
+name k s = (\ n -> s { _name = n}) <$> k (_name s)
+
+nameSpace :: Lens' Name NameSpace
+nameSpace k s = (\ n -> s { _nameSpace = n}) <$> k (_nameSpace s)
+
+varN :: Prism' Name BasicName
+varN = prism
+       (\ n -> Name n VarNS)
+       (\case
+           Name n VarNS -> Right n
+           x            -> Left x
+       )
+
+dataConN :: Prism' Name BasicName
+dataConN = prism
+           (\ n -> Name n DataConNS)
+           (\case
+               Name n DataConNS -> Right n
+               x                -> Left x
+           )
+
+mkVarName :: BasicName -> Name
+mkVarName n = varN # n
+
+mkDataConName :: BasicName -> Name
+mkDataConName n = dataConN # n
+
+-- ----------------------------------------
+--
 -- just for testing:
 
 deriving instance Show b => Show (Expr b)
@@ -227,6 +275,9 @@ deriving instance Show Strictness
 -- deriving instance Show AltCon
 deriving instance Show b => Show (Bind b)
 deriving instance Show Type
+deriving instance Show Name
+deriving instance Show NameSpace
+
 -- deriving instance Show DataCon
 
 -- ----------------------------------------

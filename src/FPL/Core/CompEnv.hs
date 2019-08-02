@@ -34,7 +34,7 @@ import qualified Data.Map as M
 -- ----------------------------------------
 
 data CompEnv
-  = Env { _idMap      :: Map VarName Var
+  = Env { _idMap      :: Map Name Var
         , _stackLevel :: Offset
         , _compOpts   :: CompOptions
         }
