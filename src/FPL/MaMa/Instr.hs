@@ -56,16 +56,16 @@ instance (Pretty d, Pretty op) => Pretty (Instr' d op) where
 
 prettyInstr :: (Pretty d, Pretty op) => Instr' d op -> String
 prettyInstr = \ case
-  LoadInt  i     -> fmt ["loadc", pretty i]
-  LoadBool b     -> fmt ["loadc", pretty b]
-  LoadLit op' xs -> fmt ["loadc", pretty op', show xs]
-  MkBasic        -> fmt ["mkbasic"]
-  GetBasic       -> fmt ["getbasic"]
-  PushLoc     d  -> fmt ["pushloc", pretty d]
-  PushGlb     d  -> fmt ["pushglb", pretty d]
+  LoadInt  i     -> fmt ["loadInt", pretty i]
+  LoadBool b     -> fmt ["loadBool", pretty b]
+  LoadLit op' xs -> fmt ["loadLit", pretty op', show xs]
+  MkBasic        -> fmt ["mkBasic"]
+  GetBasic       -> fmt ["getBasic"]
+  PushLoc     d  -> fmt ["pushLoc", pretty d]
+  PushGlb     d  -> fmt ["pushGlb", pretty d]
   Branch    b d  -> fmt [ if b
-                          then "brtrue"
-                          else "brfalse"
+                          then "brTrue"
+                          else "brFalse"
                         , pretty d
                         ]
 

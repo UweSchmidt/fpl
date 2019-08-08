@@ -3,15 +3,32 @@
 -- {-# LANGUAGE LambdaCase #-}
 
 module FPL.Core.CodeGenBasic
-  ( gen
-  , lab
+  ( -- label generation
+    label
   , newLab
   , newName
+
+  -- code blocks for functions and closures
   , inNewCodeBlock
 
+    -- environment manipulation
   , withStackLevel'1
   , withVar
   , withVars
+
+    -- MaMa instruction gen
+  , loadInt
+  , loadBool
+  , loadLit
+  , mkBasic
+  , getBasic
+  , pushLoc
+  , pushGlb
+  , jump
+  , branch
+  , comp
+  , halt
+  , noop
   )
 where
 
@@ -21,6 +38,8 @@ import FPL.Core.CompEnv
 import FPL.Core.CompMonad
 import FPL.Core.CompState
 import FPL.Core.MaMaCode
+import FPL.MaMa.Instr
+import FPL.MaMa.SimpleTypes (Offset)
 
 -- ----------------------------------------
 --
@@ -30,8 +49,8 @@ gen :: AInstr op -> Comp op ()
 gen i
   = codeActive %= addAInstr i
 
-lab :: Label -> Comp op ()
-lab l
+label :: Label -> Comp op ()
+label l
   = do pos <- uses codeActive lenACode
        codeActive . labMap . at l .= Just pos
 
@@ -67,17 +86,17 @@ closeCodeBlock
        codeDelayed %= tail
 
 inNewCodeBlock :: Comp op a -> Comp op a
-inNewCodeBlock comp
+inNewCodeBlock compile
   = do newCodeBlock
-       r <- comp
+       r <- compile
        closeCodeBlock
        return r
 
 -- with stack level + 1
 
 withStackLevel'1 :: Comp op a -> Comp op a
-withStackLevel'1 comp
-  = locally stackLevel (+ 1) comp
+withStackLevel'1 compile
+  = locally stackLevel (+ 1) compile
 
 withVar :: Var -> Comp op a -> Comp op a
 withVar v = locally id (insVar v)
@@ -88,5 +107,45 @@ withVars vars
   where
     extIdMap env
       = foldl (flip insVar) env vars
+
+-- ----------------------------------------
+--
+-- "smart constructors" for code generation
+
+loadInt :: Int -> Comp op ()
+loadInt i = gen $ LoadInt i
+
+loadBool :: Bool -> Comp op ()
+loadBool b = gen $ LoadBool b
+
+loadLit :: op -> String -> Comp op ()
+loadLit op' val = gen $ LoadLit op' val
+
+mkBasic :: Comp op ()
+mkBasic = gen MkBasic
+
+getBasic :: Comp op ()
+getBasic = gen GetBasic
+
+pushLoc :: Offset -> Comp op ()
+pushLoc o = gen $ PushLoc o
+
+pushGlb :: Offset -> Comp op ()
+pushGlb o = gen $ PushGlb o
+
+jump :: Label -> Comp op ()
+jump l = gen $ Jump l
+
+branch :: Bool -> Label -> Comp op ()
+branch b l = gen $ Branch b l
+
+comp :: op -> Comp op ()
+comp op' = gen $ Comp op'
+
+halt :: Comp op ()
+halt = gen $ Halt
+
+noop :: Comp op ()
+noop = gen $ Noop
 
 -- ----------------------------------------
