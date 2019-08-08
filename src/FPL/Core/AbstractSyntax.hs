@@ -13,99 +13,80 @@ import FPL.Prelude
 -- import qualified Data.Set as S
 
 -- ----------------------------------------
---
--- b:     defining occurence with type
--- Ident: applied occurence
 
-type CoreExpr = Expr Var
+type Prog = [CAF]
 
-data Expr b
-  = Var   b                             -- ghc: Var Var (???)
-  | Lit   Literal
-  | App   (Expr b)  (Arg b)
-  | Lam   b (Expr b)
-  | Let   (Bind b)  (Expr b)
-  | If    (Expr b)  (Expr b) (Expr b)
---  | Case  (Expr b) b Type [Alt b]     -- not yet implemented
---  | Type Type                         -- system FC
+data CAF
+  = CAF
+    { _lhs :: VarName
+    , _rhs :: Expr
+    }
+
+data Expr
+  = Var    VarName
+  | Lit    Literal
+  | Prim   PrimOp
+  | App    Expr  [Expr]
+  | Lam    [Var]  Expr
+  | Let    Var    Expr   Expr
+  | LetRec [(Var, Expr)] Expr
+  | If     Expr   Expr   Expr
 
 data Var
   = Id { _varName    :: VarName
        , _varType    :: Type
        , _varScope   :: VarScope
-       , _varDetails :: VarDetails
-       , _varInfo    :: VarInfo
        }
--- | TyVar ....
+
+data PrimOp
+  = PrimOp
+    { _primName :: PrimName
+    , _primType :: Type
+    }
 
 data VarScope
   = GlobalVar
   | LocalVar
 
-data VarDetails
-  = VanillaId
-  | PrimOpId
-
-data VarInfo
-  = VarInfo
-    { _arityInfo      :: Arity
-    , _strictnessInfo :: Strictness
+data Literal
+  = Literal
+    { _litType :: Type
+    , _litVal  :: LitVal
     }
 
-data Strictness
-  = IsLazy
-  | IsStrict
-
-type Arity = Int
-
-data Literal
-  = LitInt  Int
-  | LitBool Bool
-  | LitVal Type String
-
-type Arg b = (Expr b)
-
--- type Alt b = (AltCon, [b], Expr b)
-
--- data AltCon
---   = DataAlt DataCon
---   | LitAlt  Literal
---   | DEFAULT
-
-data Bind b
-  = NonRec b (Expr b)
-  | Rec [(b, (Expr b))]
+type LitVal = String
 
 data Type
-  = TyBasic BasicName
-  | TyFct Type Type
---  | TyData TypeName [DataCon]   -- data not yet implemented
+  = TyAny               -- unknown basic type
+  | TyBasic TypeName    -- basic type
+  | TyFct [Type] Type   -- function type (uncurried)
 
--- data DataCon
---  = DataCon DataConName [Type]
+-- --------------------
+--
+-- names
 
 type BasicName  = String
 
 data Name
-  = Name { _name      :: BasicName
-         , _nameSpace :: NameSpace
-         }
+  = Name
+    { _name      :: BasicName
+    , _nameSpace :: NameSpace
+    }
 
-data NameSpace   = VarNS | DataConNS -- no type variable yet | TypeNS | ...
+data NameSpace   = VarNS | DataConNS | PrimNS | TypeNS
 
 type VarName     = Name
--- type TypeName    = Name
--- type DataConName = Name
+type PrimName    = Name
+type TypeName    = Name
 
 -- ----------------------------------------
+--
+-- different names maybe stored in a single env
+-- namespace tags are partitioning the map
 
-deriving instance Functor Expr
-deriving instance Functor Bind
-
-deriving instance Eq Type
-deriving instance Eq Name
+deriving instance Eq  Name
 deriving instance Ord Name
-deriving instance Eq NameSpace
+deriving instance Eq  NameSpace
 deriving instance Ord NameSpace
 
 -- ----------------------------------------
@@ -123,91 +104,25 @@ varType k s = (\ n -> s { _varType = n}) <$> k (_varType s)
 varScope :: Lens' Var VarScope
 varScope k s = (\ n -> s { _varScope = n}) <$> k (_varScope s)
 
-varDetails :: Lens' Var VarDetails
-varDetails k s = (\ n -> s { _varDetails = n}) <$> k (_varDetails s)
+-- Literals
 
-varInfo :: Lens' Var VarInfo
-varInfo k s = (\ n -> s { _varInfo = n}) <$> k (_varInfo s)
+litVal :: Lens' Literal LitVal
+litVal  k s = (\ n -> s { _litVal = n}) <$> k (_litVal s)
 
--- VarInfo
+litType :: Lens' Literal Type
+litType  k s = (\ n -> s { _litType = n}) <$> k (_litType s)
 
-arityInfo :: Lens' VarInfo Arity
-arityInfo k s = (\ n -> s { _arityInfo = n}) <$> k (_arityInfo s)
+-- Types
 
-strictnessInfo :: Lens' VarInfo Strictness
-strictnessInfo k s = (\ n -> s { _strictnessInfo = n}) <$> k (_strictnessInfo s)
-
--- Literal
-
-litInt :: Prism' Literal Int
-litInt = prism
-      LitInt
-      (\ case
-          LitInt y -> Right y
-          x        -> Left  x
-      )
-
-litBool :: Prism' Literal Bool
-litBool = prism
-      LitBool
-      (\ case
-          LitBool y -> Right y
-          x         -> Left  x
-      )
-
-litVal :: Prism' Literal (Type, String)
-litVal = prism
-      (uncurry LitVal)
-      (\ case
-          LitVal t s -> Right (t, s)
-          x          -> Left  x
-      )
-
-litType :: Literal -> Type
-litType = \case
-  LitInt   _i -> intType
-  LitBool  _b -> boolType
-  LitVal t _v -> t
-
--- Bind b
-
-nonRecBind :: Prism' (Bind b) (b, Expr b)
-nonRecBind = prism
-      (uncurry NonRec)
-      (\case
-          NonRec b e -> Right (b, e)
-          x          -> Left  x
-      )
-
-recBind :: Prism' (Bind b) [(b, Expr b)]
-recBind = prism
-      Rec
-      (\case
-          Rec b -> Right b
-          x     -> Left  x
-      )
-
-
--- Type
-
-tyInt :: Prism' Type ()
-tyInt
-  = prism'
-    (const $ TyBasic "Int")
+tyAny :: Prism' Type ()
+tyAny = prism'
+    (const TyAny)
     (\case
-        TyBasic "Int" -> Just ()
-        _             -> Nothing
+        TyAny -> Just ()
+        _     -> Nothing
     )
 
-tyBool :: Prism' Type ()
-tyBool = prism'
-    (const $ TyBasic "Bool")
-    (\case
-        TyBasic "Bool" -> Just ()
-        _              -> Nothing
-    )
-
-tyBasic :: Prism' Type BasicName
+tyBasic :: Prism' Type TypeName
 tyBasic = prism
       TyBasic
       (\case
@@ -215,7 +130,7 @@ tyBasic = prism
           x         -> Left  x
       )
 
-tyFct :: Prism' Type (Type, Type)
+tyFct :: Prism' Type ([Type], Type)
 tyFct = prism
       (uncurry TyFct)
       (\case
@@ -223,11 +138,24 @@ tyFct = prism
           x           -> Left  x
       )
 
+-- basic type constructors and ops
+
+anyType :: Type
+anyType = tyAny # ()
+
 intType :: Type
-intType  = tyInt # ()
+intType = tyBasic # Name "Int" TypeNS
 
 boolType :: Type
-boolType = tyBool # ()
+boolType = tyBasic . typeN # "Bool"
+
+fctType :: [Type] -> Type -> Type
+fctType ats rt = tyFct # (ats, rt)
+
+-- arity of a function type
+
+arity :: Type -> Int
+arity t = fromMaybe 0 (t ^? tyFct . _1 . to length)
 
 -- ----------------------------------------
 --
@@ -255,6 +183,15 @@ dataConN = prism
                x                -> Left x
            )
 
+typeN :: Prism' Name BasicName
+typeN = prism
+       (\ n -> Name n TypeNS)
+       (\case
+           Name n TypeNS -> Right n
+           x             -> Left x
+       )
+
+
 mkVarName :: BasicName -> Name
 mkVarName n = varN # n
 
@@ -265,18 +202,15 @@ mkDataConName n = dataConN # n
 --
 -- just for testing:
 
-deriving instance Show b => Show (Expr b)
-deriving instance Show Var
-deriving instance Show VarScope
-deriving instance Show VarDetails
-deriving instance Show VarInfo
+deriving instance Show CAF
+deriving instance Show Expr
 deriving instance Show Literal
-deriving instance Show Strictness
--- deriving instance Show AltCon
-deriving instance Show b => Show (Bind b)
-deriving instance Show Type
+deriving instance Show PrimOp
 deriving instance Show Name
 deriving instance Show NameSpace
+deriving instance Show Type
+deriving instance Show Var
+deriving instance Show VarScope
 
 -- deriving instance Show DataCon
 
