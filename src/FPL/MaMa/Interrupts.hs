@@ -17,6 +17,7 @@ infixr 5 +:+
 data Interrupt
   = Running
   | Terminated
+  | LoopInv
   | NullPointer
   | IllegalHeapAddr
   | IllegalCodeAddr
@@ -41,6 +42,7 @@ prettyIR :: Interrupt -> String
 prettyIR = \case
       Running           -> ""
       Terminated        -> "Program terminated"
+      LoopInv           -> "Infinite loop"
       NullPointer       -> "Null pointer exception"
       IllegalHeapAddr   -> "Illegal heap access"
       IllegalCodeAddr   -> "Illegal code access"

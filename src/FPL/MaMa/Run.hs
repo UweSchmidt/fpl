@@ -97,7 +97,9 @@ evalInstr = \case
                 alu op'
 
                 -- unconditional jump with displaceent
-  Jump d     -> pc %= incr' d
+  Jump d     -> if d == -1
+                then abort LoopInv
+                else pc %= incr' d
 
                 -- conditional jump with displaceent
   Branch b d -> do b1 <- popBV asBool

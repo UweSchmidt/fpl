@@ -4,6 +4,7 @@
 module FPL.MaMa.Stack
   ( Stack
   , StackValue
+  , stackSize
   , push
   , pop
   , pushSB
@@ -68,6 +69,9 @@ offset2ix i (SK v)
 
 values :: Iso' (Stack v) (Seq (StackValue v))
 values = iso _sk SK
+
+stackSize :: Stack v -> Int
+stackSize s = S.length $ s ^. values
 
 -- --------------------
 

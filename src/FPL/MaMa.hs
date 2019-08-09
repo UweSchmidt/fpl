@@ -3,6 +3,7 @@ module FPL.MaMa
   , module FPL.MaMa.Code
   , module FPL.MaMa.Heap
   , module FPL.MaMa.Instr
+  , module FPL.MaMa.Interrupts
   , module FPL.MaMa.MachineState
   , module FPL.MaMa.Monad
   , module FPL.MaMa.Options
@@ -17,6 +18,7 @@ import FPL.MaMa.ALU
 import FPL.MaMa.Code
 import FPL.MaMa.Heap
 import FPL.MaMa.Instr
+import FPL.MaMa.Interrupts
 import FPL.MaMa.MachineState
 import FPL.MaMa.Monad
 import FPL.MaMa.Options

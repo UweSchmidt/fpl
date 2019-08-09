@@ -39,7 +39,7 @@ dependencies:
 - unordered-containers >= 0.2
 - utf8-string          >= 1
 - vector               >= 0.10
-
+- HUnit
 
 ghc-options:
 - -Wall
@@ -169,7 +169,7 @@ tests:
     source-dirs:         test
     dependencies:
     - fpl
-    - hspec
+    - HUnit
 
     ghc-options:
     - -threaded
