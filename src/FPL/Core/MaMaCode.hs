@@ -19,8 +19,8 @@ import FPL.MaMa.Code
 import FPL.MaMa.Instr
 import FPL.MaMa.SimpleTypes
 
-import qualified Data.Sequence as L
-import qualified Data.Map as M
+import qualified Data.Sequence as S
+import qualified Data.Map      as M
 
 import Text.Pretty
 
@@ -48,14 +48,14 @@ instance Semigroup (ACode op) where
     = AC (is1 <> is2)
          (lm1 `M.union` fmap (+ disp) lm2)
     where
-      disp = L.length is1
+      disp = S.length is1
 
 instance Monoid (ACode op) where
   mempty = AC mempty mempty
 
 instance Empty (ACode op) where
   empty' = mempty
-  null' (AC is lm) = L.null is && M.null lm
+  null' (AC is lm) = S.null is && M.null lm
 
 instrSeq :: Lens' (ACode op) (AInstrSeq op)
 instrSeq k s = (\ n -> s { _instrSeq = n}) <$> k (_instrSeq s)
@@ -64,10 +64,10 @@ labMap :: Lens' (ACode op) LabMap
 labMap k s = (\ n -> s { _labMap = n}) <$> k (_labMap s)
 
 lenACode :: ACode op -> Int
-lenACode cs = L.length (cs ^. instrSeq)
+lenACode cs = S.length (cs ^. instrSeq)
 
 addAInstr :: AInstr op -> ACode op -> ACode op
-addAInstr i c = c & instrSeq %~ (<> L.singleton i)
+addAInstr i c = c & instrSeq %~ (<> S.singleton i)
 
 -- --------------------
 --
@@ -76,7 +76,7 @@ addAInstr i c = c & instrSeq %~ (<> L.singleton i)
 
 assemble :: ACode op -> Code op
 assemble (AC instrSeq' labMap')
-  = mkCode $ L.foldrWithIndex ass [] instrSeq'
+  = mkCode $ S.foldrWithIndex ass [] instrSeq'
   where
     ass ix' instr rs = f instr : rs
       where
@@ -145,7 +145,7 @@ type Op1 = Bool
 type AInstr1 = AInstr Op1
 
 a1 :: ACode Op1
-a1 = AC { _instrSeq = L.fromList
+a1 = AC { _instrSeq = S.fromList
                       [ LoadInt 1
                       , LoadInt 2
                       , MkBasic

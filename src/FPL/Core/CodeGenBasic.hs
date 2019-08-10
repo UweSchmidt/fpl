@@ -4,7 +4,8 @@
 
 module FPL.Core.CodeGenBasic
   ( -- label generation
-    label
+    Label
+  , label
   , newLab
   , newName
 

@@ -60,9 +60,11 @@ library:
     - FPL.Core.AbstractSyntax
     - FPL.Core.CodeGenBasic
     - FPL.Core.CompEnv
+    - FPL.Core.Compile
     - FPL.Core.CompMonad
     - FPL.Core.CompState
     - FPL.Core.MaMaCode
+    - FPL.Core.OpDescr
     - FPL.MaMa
     - FPL.MaMa.ALU
     - FPL.MaMa.Code

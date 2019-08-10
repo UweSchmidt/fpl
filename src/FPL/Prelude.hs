@@ -113,7 +113,7 @@ where
 
 import           Control.Applicative
 import           Control.Arrow
-import           Control.Lens
+import           Control.Lens hiding (op)
 import           Control.Monad
 import qualified Control.Monad.Reader.Class as Reader
 import           Data.Aeson (ToJSON(..), FromJSON(..))

@@ -3,6 +3,7 @@
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE StandaloneDeriving #-}
+{-# LANGUAGE RankNTypes #-}
 
 -- Abstract Syntax for Core language
 
@@ -18,12 +19,12 @@ type Prog = [CAF]
 
 data CAF
   = CAF
-    { _lhs :: VarName
+    { _lhs :: Var
     , _rhs :: Expr
     }
 
 data Expr
-  = Var    VarName
+  = Var    Var
   | Lit    Literal
   | Prim   PrimOp
   | App    Expr  [Expr]
@@ -88,6 +89,7 @@ deriving instance Eq  Name
 deriving instance Ord Name
 deriving instance Eq  NameSpace
 deriving instance Ord NameSpace
+deriving instance Eq  Type
 
 -- ----------------------------------------
 --
@@ -152,6 +154,12 @@ boolType = tyBasic . typeN # "Bool"
 fctType :: [Type] -> Type -> Type
 fctType ats rt = tyFct # (ats, rt)
 
+bool'bool :: Type
+bool'bool = fctType [boolType] boolType
+
+bool2'bool :: Type
+bool2'bool = fctType [boolType, boolType] boolType
+
 -- arity of a function type
 
 arity :: Type -> Int
@@ -191,6 +199,14 @@ typeN = prism
            x             -> Left x
        )
 
+primN :: Prism' Name BasicName
+primN = prism
+       (\ n -> Name n PrimNS)
+       (\case
+           Name n PrimNS -> Right n
+           x             -> Left x
+       )
+
 
 mkVarName :: BasicName -> Name
 mkVarName n = varN # n
@@ -213,5 +229,179 @@ deriving instance Show Var
 deriving instance Show VarScope
 
 -- deriving instance Show DataCon
+
+-- ----------------------------------------
+--
+-- expr optics
+
+boolEx :: Prism' Expr Bool
+boolEx = prism' f g
+  where
+    f b = Lit $ Literal boolType (show b)
+    g (Lit (Literal t v))
+      | t == boolType
+      , Just b <- readMaybe v
+                        = Just b
+    g _                 = Nothing
+
+intEx :: Prism' Expr Int
+intEx = prism' f g
+  where
+    f i                 = Lit $ Literal intType (show i)
+    g (Lit (Literal t v))
+      | t == intType
+      , Just i <- readMaybe v
+                        = Just i
+    g _                 = Nothing
+
+
+falseExpr :: Expr
+falseExpr = boolEx # False
+
+trueExpr  :: Expr
+trueExpr  = boolEx # True
+
+-- --------------------
+
+intVar :: Prism' Expr VarName
+intVar = prism' f g
+  where
+    f n                  = Var (Id { _varName  = n
+                                   , _varType  = intType
+                                   , _varScope = LocalVar
+                                   }
+                               )
+    g (Var id')
+      | _varType id' == intType
+                         = Just (_varName id')
+    g _                  = Nothing
+
+boolVar :: Prism' Expr VarName
+boolVar = prism' f g
+  where
+    f n                  = Var (Id { _varName  = n
+                                   , _varType  = boolType
+                                   , _varScope = LocalVar
+                                   }
+                               )
+    g (Var id')
+      | _varType id' == boolType
+                         = Just (_varName id')
+    g _                  = Nothing
+
+-- --------------------
+--
+-- optics for unary expr
+
+prim1 :: Prism' Expr (PrimOp, Expr)
+prim1 = prism' f g
+  where
+    f (op, e1)          = App (Prim op) [e1]
+    g (App (Prim op) [e1])
+                        = Just (op, e1)
+    g _                 = Nothing
+
+prim1' :: Type -> Prism' Expr (BasicName, Expr)
+prim1' t = prim1 . prism' f g
+  where
+    f (n, e1)           = ( PrimOp { _primName = primN # n
+                                   , _primType = t
+                                   }
+                          , e1
+                          )
+    g ( PrimOp { _primName = n1
+               , _primType = t1
+               }
+      , e1
+      )
+      | t == t1
+      , Just n <- n1 ^? primN
+                        = Just (n, e1)
+    g _                 = Nothing
+
+prim1Int :: Prism' Expr (BasicName, Expr)
+prim1Int = prim1' intType
+
+prim1Bool :: Prism' Expr (BasicName, Expr)
+prim1Bool = prim1' boolType
+
+unaryExpr :: Type -> BasicName -> Prism' Expr Expr
+unaryExpr t n = prim1' t . hasName n
+
+-- --------------------
+--
+-- optics for binary expr
+
+prim2 :: Prism' Expr (PrimOp, (Expr, Expr))
+prim2 = prism' f g
+  where
+    f (op, (e1, e2))    = App (Prim op) [e1, e2]
+    g (App (Prim op) [e1, e2])
+                        = Just (op, (e1, e2))
+    g _                 = Nothing
+
+prim2' :: Type -> Prism' Expr (BasicName, (Expr, Expr))
+prim2' t = prim2 . prism' f g
+  where
+    f (n, e12)          = ( PrimOp { _primName = primN # n
+                                     , _primType = t
+                                     }
+                            , e12
+                            )
+    g ( PrimOp { _primName = n1
+               , _primType = t1
+               }
+      , e12
+      )
+      | t == t1
+      , Just n <- n1 ^? primN
+                        = Just (n, e12)
+    g _                 = Nothing
+
+prim2Int :: Prism' Expr (BasicName, (Expr, Expr))
+prim2Int = prim2' intType
+
+prim2Bool :: Prism' Expr (BasicName, (Expr, Expr))
+prim2Bool = prim2' boolType
+
+binaryExpr :: Type -> BasicName -> Prism' Expr (Expr, Expr)
+binaryExpr t n = prim2' t . hasName n
+
+hasName :: Eq n => n -> Prism' (n, e) e
+hasName n = prism' f g
+  where
+    f e12        = (n, e12)
+    g (n1, e12)
+      | n1 == n  = Just e12
+    g _          = Nothing
+
+-- --------------------
+--
+-- optics for n-ary expr
+
+primEx :: Prism' Expr (PrimOp, [Expr])
+primEx = prism' f g
+  where
+    f (op, es)          = App (Prim op) es
+    g (App (Prim op) es)
+                        = Just (op, es)
+    g _                 = Nothing
+
+-- --------------------
+
+data ExprPrisms
+  = ExPrisms
+    { logicalNot :: Prism' Expr Expr
+    , logicalAnd :: Prism' Expr (Expr, Expr)
+    , logicalOr  :: Prism' Expr (Expr, Expr)
+    }
+
+exprPrisms :: ExprPrisms
+exprPrisms
+  = ExPrisms
+    { logicalNot = unaryExpr  boolType "not"
+    , logicalAnd = binaryExpr boolType "&&"
+    , logicalOr  = binaryExpr boolType "||"
+    }
 
 -- ----------------------------------------

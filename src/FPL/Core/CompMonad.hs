@@ -10,7 +10,7 @@ import FPL.Core.CompEnv
 import FPL.Core.CompState
 
 import           Control.Monad.RWS.Strict
-import qualified Data.Sequence as L
+import qualified Data.Sequence as S
 import           System.IO
 
 -- ----------------------------------------
@@ -21,6 +21,10 @@ newtype CompErr = CE {_compError :: String}
 type CompErrs = Seq CompErr
 
 -- ----------------------------------------
+--
+-- IO monad maybe removed
+-- currently only used for error message output
+-- in issue
 
 type Comp op v
   = RWST CompEnv CompErrs (CompState op) IO v
@@ -36,6 +40,6 @@ runComp opts cmd
 issue :: String -> Comp op ()
 issue msg
   = do liftIO $ hPutStrLn stderr ("code gen error: " ++ msg)
-       tell $ L.singleton (CE msg)
+       tell $ S.singleton (CE msg)
 
 -- ----------------------------------------
