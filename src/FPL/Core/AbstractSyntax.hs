@@ -254,6 +254,13 @@ intEx = prism' f g
                         = Just i
     g _                 = Nothing
 
+litEx :: Prism' Expr (Type, LitVal)
+litEx = prism' f g
+  where
+    f (t, v)            = Lit $ Literal t v
+    g (Lit (Literal t v))
+                        = Just (t, v)
+    g _                 = Nothing
 
 falseExpr :: Expr
 falseExpr = boolEx # False
@@ -389,19 +396,73 @@ primEx = prism' f g
 
 -- --------------------
 
-data ExprPrisms
-  = ExPrisms
+ifEx :: Prism' Expr (Expr, Expr, Expr)
+ifEx = prism' f g
+  where
+    f (cond, thenp, elsep)
+                        = If cond thenp elsep
+    g (If cond thenp elsep)
+                        = Just (cond, thenp, elsep)
+    g _                 = Nothing
+
+-- --------------------
+--
+-- during code gen there are
+-- some expr transformation necessary
+--
+-- matching and transforming is done
+-- by prisms
+--
+-- example: short evaluation of
+-- logical && and || need to be transformed
+-- into if-then-else (branches and jumps)
+--
+-- the syntax of these prim expression
+-- is configured in the ExprComp record
+
+data ExprComp
+  = ExprComp
     { logicalNot :: Prism' Expr Expr
     , logicalAnd :: Prism' Expr (Expr, Expr)
     , logicalOr  :: Prism' Expr (Expr, Expr)
     }
 
-exprPrisms :: ExprPrisms
-exprPrisms
-  = ExPrisms
+defaultExprComp :: ExprComp
+defaultExprComp
+  = ExprComp
     { logicalNot = unaryExpr  boolType "not"
     , logicalAnd = binaryExpr boolType "&&"
     , logicalOr  = binaryExpr boolType "||"
     }
+
+-- prim ops must be mapped to MaMa compute ops
+-- also conversion of literals for user defined
+-- basic values needs conversion ops
+-- from strings to the user defined types
+
+data MaMaOpTable op
+  = MaMaOps
+    { _litConvOp :: TypeName -> Maybe op
+    , _primOpMap :: PrimOp -> Maybe (op, Type)
+    }
+
+litConvOp :: Lens' (MaMaOpTable op) (TypeName -> Maybe op)
+litConvOp k s = (\ n -> s { _litConvOp = n}) <$> k (_litConvOp s)
+
+primOpMap :: Lens' (MaMaOpTable op) (PrimOp -> Maybe (op, Type))
+primOpMap k s = (\ n -> s { _primOpMap = n}) <$> k (_primOpMap s)
+
+defaultMaMaOpTable :: MaMaOpTable op
+defaultMaMaOpTable
+  = MaMaOps
+    { _litConvOp = conv0     -- dummy
+    , _primOpMap = op0       -- dummy
+    }
+    where
+      conv0 tn = const Nothing $ n
+        where
+          n = tn ^. name
+
+      op0 po = const Nothing $ po
 
 -- ----------------------------------------

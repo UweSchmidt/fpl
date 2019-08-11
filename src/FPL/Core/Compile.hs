@@ -6,51 +6,57 @@ where
 import FPL.Prelude
 import FPL.Core.AbstractSyntax
 import FPL.Core.CodeGenBasic
--- import FPL.Core.CompEnv
+import FPL.Core.CompEnv
 import FPL.Core.CompMonad
 -- import FPL.Core.CompState
-import FPL.Core.OpDescr
 
 -- ----------------------------------------
 --
 -- compile to basic value
 
-compB :: OpDescr op => Expr -> Comp op ()
-compB (Lit l)  = compLit l
+compB :: Expr -> Comp op ()
+compB e@(Lit _)         = compLit e
 
-compB (App (Prim primop) args)
-               = compPrim primop args
+compB e@(App (Prim _) _)
+                        = compPrim e
 
 compB (If cond thenp elsep)
-               = do l1 <- newLab
-                    l2 <- newLab
-                    compBranch False l1 cond
-                    compB thenp
-                    jump  l2
-                    label l1
-                    compB elsep
-                    label l2
-compB e        = issue $ "compB: illegal expr: " ++ show e
+                        = do l1 <- newLab
+                             l2 <- newLab
+--                             compBranch False l1 cond
+                             compB thenp
+                             jump  l2
+                             label l1
+                             compB elsep
+                             label l2
+compB e                 = issue $ "compB: illegal expr: " ++ show e
 
 -- --------------------
 --
 -- compile literal
 
-compLit :: OpDescr op => Literal -> Comp op ()
-compLit l
-  | t == intType
-  , Just i <- readMaybe v  = loadInt i
+compLit :: Expr -> Comp op ()
+compLit e
+  = view (mamaOps . litConvOp) >>= compLit' e
 
-  | t == boolType
-  , Just b <- readMaybe v  = loadBool b
+compLit' :: Expr -> (TypeName -> Maybe op) -> Comp op ()
+compLit' e conv
+  -- Int literal
+  | Just i      <- e ^? intEx   = loadInt  i
 
-  | Just n <- t ^? tyBasic
-  , Just o <- litConvOp n
-                           = loadLit o v
-  | otherwise = issue $ "wrong literal " ++ show v
-  where
-    t = l ^. litType
-    v = l ^. litVal
+  -- Bool literal
+  | Just b      <- e ^? boolEx  = loadBool b
+
+  -- literal of user defined basic type
+  -- type must be a basic type
+  -- and the string value can be
+  -- converted by a machine op
+
+  | Just (t, v) <- e ^? litEx
+  , Just n      <- t ^? tyBasic
+  , Just o      <- conv n       = loadLit o v
+
+  | otherwise                   = issue $ "wrong literal " ++ show e
 
 -- --------------------
 --
@@ -60,32 +66,38 @@ compLit l
 -- expected, no partial application (must be transformed before code gen)
 -- and no over saturation (prim ops never return a function)
 
-compPrim :: OpDescr op => PrimOp -> [Expr] -> Comp op ()
+compPrim :: Expr -> Comp op ()
+compPrim e0
+  = view exprComp >>= compNonStrictPrim e0
+  where
 
-compPrim primop args
-  | Just (op', TyFct ptypes _rtype) <- primOpMap primop
-  , length args == length ptypes
-    = compPrim' op' args
-      where
-        compPrim' o [e1, e2]
-          | isLogicalAnd o
-                = compB (If e1 e2 falseExpr)
+compNonStrictPrim :: Expr -> ExprComp -> Comp op ()
+compNonStrictPrim e ec
+  | Just (e1, e2) <- e ^? logicalAnd ec
+                        = compB (ifEx # (e1, e2, falseExpr))
 
-          | isLogicalOr o
-                = compB (If e1 trueExpr e2)
+  | Just (e1, e2) <- e ^? logicalOr  ec
+                        = compB (ifEx # (e1, trueExpr, e2))
 
-        compPrim' o args'
-                = do traverse_ compB args'      -- compile args
-                     comp o                     -- gen compute instr
+  | Just (po, args) <- e ^? primEx
+                        = view (mamaOps . primOpMap) >>= compStrictPrim po args
 
-compPrim primop args
-                = issue $ "compPrim: illegal prim op or type" ++ show (primop, args)
+  | otherwise           = issue $ "compPrim: illegal prim expr " ++ show e
 
+compStrictPrim :: PrimOp -> [Expr] -> (PrimOp -> Maybe (op, Type)) -> Comp op ()
+compStrictPrim po args opmap
+  | Just (o', t') <- opmap po
+  , length args == arity t'
+                        = do traverse_ compB args       -- compile args
+                             comp o'                    -- gen compute instr
+
+  | otherwise           = issue $
+                          "compStrict: illegal prim op or type" ++ show (po, args)
 
 -- ----------------------------------------
 
 -- special handling for boolean operations &&, ||, not, True, False
-
+{-
 compBranch :: forall op . OpDescr op => Bool -> Label -> Expr -> Comp op ()
 
 compBranch cond lab e@(App (Prim primop) args)
@@ -135,5 +147,5 @@ compBranch cond lab e
                 = do compB e
                      branch cond lab
 
-
+-}
 -- ----------------------------------------

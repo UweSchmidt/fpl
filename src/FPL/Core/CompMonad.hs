@@ -27,7 +27,7 @@ type CompErrs = Seq CompErr
 -- in issue
 
 type Comp op v
-  = RWST CompEnv CompErrs (CompState op) IO v
+  = RWST (CompEnv op) CompErrs (CompState op) IO v
 
 runComp :: CompOptions
   -> Comp op v

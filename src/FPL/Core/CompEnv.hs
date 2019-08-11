@@ -18,6 +18,9 @@ module FPL.Core.CompEnv
   , compOpts
   , compOpts0
   , genCallByValue
+
+  , exprComp
+  , mamaOps
   )
 where
 
@@ -33,41 +36,50 @@ import qualified Data.Map as M
 
 -- ----------------------------------------
 
-data CompEnv
+data CompEnv op
   = Env { _idMap      :: Map Name Var
         , _stackLevel :: Offset
         , _compOpts   :: CompOptions
+        , _exprComp   :: ExprComp
+        , _mamaOps    :: MaMaOpTable op
         }
-  deriving (Show)
 
-compEnv0 :: CompOptions -> CompEnv
+compEnv0 :: CompOptions -> CompEnv op
 compEnv0 opts
   = Env { _idMap      = M.empty
         , _stackLevel = 0
         , _compOpts   = opts
+        , _exprComp   = defaultExprComp
+        , _mamaOps    = defaultMaMaOpTable
         }
 
-idMap :: Lens' CompEnv (Map VarName Var)
+idMap :: Lens' (CompEnv op) (Map VarName Var)
 idMap k s = (\ n -> s { _idMap = n}) <$> k (_idMap s)
 
-stackLevel :: Lens' CompEnv Offset
+stackLevel :: Lens' (CompEnv op) Offset
 stackLevel k s = (\ n -> s { _stackLevel = n}) <$> k (_stackLevel s)
 
-compOpts :: Lens' CompEnv CompOptions
+compOpts :: Lens' (CompEnv op) CompOptions
 compOpts k s = (\ n -> s { _compOpts = n}) <$> k (_compOpts s)
 
-incrStackLevel :: CompEnv -> CompEnv
+exprComp :: Lens' (CompEnv op) ExprComp
+exprComp k s = (\ n -> s { _exprComp = n}) <$> k (_exprComp s)
+
+mamaOps :: Lens' (CompEnv op) (MaMaOpTable op)
+mamaOps k s = (\ n -> s { _mamaOps = n}) <$> k (_mamaOps s)
+
+incrStackLevel :: CompEnv op -> CompEnv op
 incrStackLevel env = env & stackLevel %~ (+ 1)
 
-insVar :: Var -> CompEnv -> CompEnv
+insVar :: Var -> CompEnv op -> CompEnv op
 insVar v env = env & at (v ^. varName) .~ Just v
 
-type instance Index   CompEnv = VarName
-type instance IxValue CompEnv = Var
+type instance Index   (CompEnv op) = VarName
+type instance IxValue (CompEnv op) = Var
 
-instance Ixed CompEnv
+instance Ixed (CompEnv op)
 
-instance At CompEnv where
+instance At (CompEnv op) where
   at i = idMap . at i
 
 -- --------------------
