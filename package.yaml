@@ -64,7 +64,6 @@ library:
     - FPL.Core.CompMonad
     - FPL.Core.CompState
     - FPL.Core.MaMaCode
-    - FPL.Core.OpDescr
     - FPL.MaMa
     - FPL.MaMa.ALU
     - FPL.MaMa.Code
