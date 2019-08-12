@@ -12,40 +12,40 @@ import FPL.Core.CompMonad
 
 -- ----------------------------------------
 
-compV :: Expr -> Comp op ()
-compV e
-  = issue $ "compV: not yet implemeted: " ++ show e
+codeV :: Expr -> Comp op ()
+codeV e
+  = issue $ "codeV: not yet implemeted: " ++ show e
 
 -- ----------------------------------------
 --
 -- compile to basic value
 
-compB :: Expr -> Comp op ()
+codeB :: Expr -> Comp op ()
 
 -- compile literals
-compB e@(Lit _l)        = compLit e
+codeB e@(Lit _l)        = codeLit e
 
 -- compile prim ops
-compB e@(App (Prim _) _)
-                        = compPrim e
+codeB e@(App (Prim _) _)
+                        = codePrim e
 
 -- compile conditional expr
-compB (If cond thenp elsep)
-                        = compIf compB cond thenp elsep
+codeB (If cond thenp elsep)
+                        = codeIf codeB cond thenp elsep
 
-compB e                 = do compV e
+codeB e                 = do codeV e
                              getBasic    -- unpack basic value
 
 -- --------------------
 --
 -- compile literal
 
-compLit :: Expr -> Comp op ()
-compLit e
-  = view (mamaOps . litConvOp) >>= compLit' e
+codeLit :: Expr -> Comp op ()
+codeLit e
+  = view (mamaOps . litConvOp) >>= codeLit' e
 
-compLit' :: Expr -> (TypeName -> Maybe op) -> Comp op ()
-compLit' e conv
+codeLit' :: Expr -> (TypeName -> Maybe op) -> Comp op ()
+codeLit' e conv
   -- Int literal
   | Just i      <- e ^? intEx   = loadInt  i
 
@@ -71,50 +71,50 @@ compLit' e conv
 -- expected, no partial application (must be transformed before code gen)
 -- and no over saturation (prim ops never return a function)
 
-compPrim :: Expr -> Comp op ()
-compPrim e0
-  = view exprComp >>= compNonStrictPrim e0
+codePrim :: Expr -> Comp op ()
+codePrim e0
+  = view exprComp >>= codeNonStrictPrim e0
   where
 
-compNonStrictPrim :: Expr -> ExprComp -> Comp op ()
-compNonStrictPrim e ec
+codeNonStrictPrim :: Expr -> ExprComp -> Comp op ()
+codeNonStrictPrim e ec
   | Just (e1, e2) <- e ^? logicalAnd ec
-                        = compB (ifEx # (e1, e2, falseExpr))
+                        = codeB (ifEx # (e1, e2, falseExpr))
 
   | Just (e1, e2) <- e ^? logicalOr  ec
-                        = compB (ifEx # (e1, trueExpr, e2))
+                        = codeB (ifEx # (e1, trueExpr, e2))
 
   | Just (po, args) <- e ^? primEx
-                        = view (mamaOps . primOpMap) >>= compStrictPrim po args
+                        = view (mamaOps . primOpMap) >>= codeStrictPrim po args
 
-  | otherwise           = issue $ "compPrim: illegal prim expr " ++ show e
+  | otherwise           = issue $ "codePrim: illegal prim expr " ++ show e
 
-compStrictPrim :: PrimOp -> [Expr] -> (PrimOp -> Maybe (op, Type)) -> Comp op ()
-compStrictPrim po args opmap
+codeStrictPrim :: PrimOp -> [Expr] -> (PrimOp -> Maybe (op, Type)) -> Comp op ()
+codeStrictPrim po args opmap
   | Just (o', t') <- opmap po
   , length args == arity t'
-                        = do traverse_ compB args       -- compile args
+                        = do traverse_ codeB args       -- compile args
                              comp o'                    -- gen compute instr
 
   | otherwise           = issue $
-                          "compStrict: illegal prim op or type" ++ show (po, args)
+                          "codeStrict: illegal prim op or type" ++ show (po, args)
 
 -- ----------------------------------------
 --
 -- compile an if expr
--- used in compB and compV compile schema
+-- used in codeB and codeV compile schema
 
-compIf :: (Expr -> Comp op ())
+codeIf :: (Expr -> Comp op ())
        -> Expr -> Expr -> Expr -> Comp op ()
 
-compIf compEx cond thenp elsep
+codeIf codeEx cond thenp elsep
                         = do l1 <- newLab
                              l2 <- newLab
-                             compBranch False l1 cond
-                             compEx thenp
+                             codeBranch False l1 cond
+                             codeEx thenp
                              jump   l2
                              label  l1
-                             compEx elsep
+                             codeEx elsep
                              label  l2
 
 -- compile a condition of an "if" expr
@@ -122,16 +122,16 @@ compIf compEx cond thenp elsep
 -- the basic bool value(s) must be computed
 -- for the conitional branch instructions
 
-compBranch :: Bool -> Label -> Expr -> Comp op ()
-compBranch cond lab e
-  = view exprComp >>= compBranch' cond lab e
+codeBranch :: Bool -> Label -> Expr -> Comp op ()
+codeBranch cond lab e
+  = view exprComp >>= codeBranch' cond lab e
 
-compBranch' :: Bool -> Label -> Expr -> ExprComp -> Comp op ()
-compBranch' cond lab e ec
+codeBranch' :: Bool -> Label -> Expr -> ExprComp -> Comp op ()
+codeBranch' cond lab e ec
   -- not e1:
   -- just kind of branch (true od false) must be negated
   | Just e1 <- e ^? logicalNot ec
-                        = compBranch (not cond) lab e1
+                        = codeBranch (not cond) lab e1
 
   -- e1 && e2:
   -- cond branches for e1 and e2
@@ -139,18 +139,18 @@ compBranch' cond lab e ec
                         = if cond
                           then do
                                lab' <- newLab
-                               compBranch (not cond) lab' e1
-                               compBranch      cond  lab  e2
+                               codeBranch (not cond) lab' e1
+                               codeBranch      cond  lab  e2
                                label lab'
                           else do
-                               compBranch cond lab e1
-                               compBranch cond lab e2
+                               codeBranch cond lab e1
+                               codeBranch cond lab e2
 
   -- e1 || e2:
   -- transform into && and not
   -- not (not e1 && not e2)
   | Just (e1, e2) <- e ^? logicalOr ec
-                        = compBranch cond lab $
+                        = codeBranch cond lab $ -- rec call with transf. expr
                           logicalNot ec #
                           logicalAnd ec #
                           (logicalNot ec # e1, logicalNot ec # e2)
@@ -165,7 +165,7 @@ compBranch' cond lab e ec
   -- all other boolean expr:
   -- code for computing the condition
   -- and a conditional branch instr
-  | otherwise           = do compB e
+  | otherwise           = do codeB e
                              branch cond lab
 
 -- ----------------------------------------
