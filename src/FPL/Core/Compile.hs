@@ -11,25 +11,30 @@ import FPL.Core.CompMonad
 -- import FPL.Core.CompState
 
 -- ----------------------------------------
+
+compV :: Expr -> Comp op ()
+compV e
+  = issue $ "compV: not yet implemeted: " ++ show e
+
+-- ----------------------------------------
 --
 -- compile to basic value
 
 compB :: Expr -> Comp op ()
-compB e@(Lit _)         = compLit e
 
+-- compile literals
+compB e@(Lit _l)        = compLit e
+
+-- compile prim ops
 compB e@(App (Prim _) _)
                         = compPrim e
 
+-- compile conditional expr
 compB (If cond thenp elsep)
-                        = do l1 <- newLab
-                             l2 <- newLab
---                             compBranch False l1 cond
-                             compB thenp
-                             jump  l2
-                             label l1
-                             compB elsep
-                             label l2
-compB e                 = issue $ "compB: illegal expr: " ++ show e
+                        = compIf compB cond thenp elsep
+
+compB e                 = do compV e
+                             getBasic    -- unpack basic value
 
 -- --------------------
 --
@@ -95,57 +100,72 @@ compStrictPrim po args opmap
                           "compStrict: illegal prim op or type" ++ show (po, args)
 
 -- ----------------------------------------
+--
+-- compile an if expr
+-- used in compB and compV compile schema
 
--- special handling for boolean operations &&, ||, not, True, False
-{-
-compBranch :: forall op . OpDescr op => Bool -> Label -> Expr -> Comp op ()
+compIf :: (Expr -> Comp op ())
+       -> Expr -> Expr -> Expr -> Comp op ()
 
-compBranch cond lab e@(App (Prim primop) args)
-  | Just (op', TyFct _atypes rtype) <- primOpMap primop
-  , rtype == boolType
-    = compBranch' op' args
-      where
-        compBranch' :: op -> [Expr] -> Comp op ()
-        compBranch' o [e1]
-          | isLogicalNot o
-                = compBranch (not cond) lab e1
+compIf compEx cond thenp elsep
+                        = do l1 <- newLab
+                             l2 <- newLab
+                             compBranch False l1 cond
+                             compEx thenp
+                             jump   l2
+                             label  l1
+                             compEx elsep
+                             label  l2
 
-        compBranch' o [e1, e2]
-          | isLogicalAnd o
-                = if cond
-                  then do new <- newLab
-                          compBranch (not cond) new e1
-                          compBranch      cond  lab e2
-                          label new
-                  else do compBranch cond lab e1
-                          compBranch cond lab e2
+-- compile a condition of an "if" expr
+--
+-- the basic bool value(s) must be computed
+-- for the conitional branch instructions
 
-          | isLogicalOr o
-                = if not cond
-                  then do new <- newLab
-                          compBranch      cond  new e1
-                          compBranch (not cond)  lab e2
-                          label new
-                  else do compBranch (not cond) lab e1
-                          compBranch (not cond) lab e2
-
-
-        compBranch' _ _
-                = do compB e
-                     branch cond lab
-
--- partial evaluation for constant conditions
-
-compBranch cond lab (Lit (Literal lty lval))
-  | lty == boolType
-  , Just v <- readMaybe lval
-                = if cond == v
-                  then jump lab
-                  else return ()
-
+compBranch :: Bool -> Label -> Expr -> Comp op ()
 compBranch cond lab e
-                = do compB e
-                     branch cond lab
+  = view exprComp >>= compBranch' cond lab e
 
--}
+compBranch' :: Bool -> Label -> Expr -> ExprComp -> Comp op ()
+compBranch' cond lab e ec
+  -- not e1:
+  -- just kind of branch (true od false) must be negated
+  | Just e1 <- e ^? logicalNot ec
+                        = compBranch (not cond) lab e1
+
+  -- e1 && e2:
+  -- cond branches for e1 and e2
+  | Just (e1, e2) <- e ^? logicalAnd ec
+                        = if cond
+                          then do
+                               lab' <- newLab
+                               compBranch (not cond) lab' e1
+                               compBranch      cond  lab  e2
+                               label lab'
+                          else do
+                               compBranch cond lab e1
+                               compBranch cond lab e2
+
+  -- e1 || e2:
+  -- transform into && and not
+  -- not (not e1 && not e2)
+  | Just (e1, e2) <- e ^? logicalOr ec
+                        = compBranch cond lab $
+                          logicalNot ec #
+                          logicalAnd ec #
+                          (logicalNot ec # e1, logicalNot ec # e2)
+
+  -- literal: True or False
+  -- unconditional jump or fall through
+  | Just b <- e ^? boolEx
+                        = if cond == b
+                          then jump lab
+                          else return ()
+
+  -- all other boolean expr:
+  -- code for computing the condition
+  -- and a conditional branch instr
+  | otherwise           = do compB e
+                             branch cond lab
+
 -- ----------------------------------------
